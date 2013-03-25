@@ -1,60 +1,95 @@
 % Appendix A
 
-\chapter{Estimated weights for \texttt{wattage}} % Main appendix title
+\chapter{Parameterizing \texttt{wattage}} % Main appendix title
 
-\label{AppendixA} % For referencing this appendix elsewhere, use \ref{AppendixA}
+\label{AppendixA}
 
-\lhead{Appendix A. \emph{Estimated weights for \texttt{wattage}}}
+\lhead{Appendix A. Parameterizing \texttt{wattage}}
 
-\begin{tabular}{lc}
-  \texttt{imm\_operand\_cpu\_wt\_individual} & \texttt{0.000000} \\
-  \texttt{imm\_operand\_cpu\_wt\_hamming} & \texttt{0.000000} \\
-  \texttt{reg\_cpu\_wt\_individual} & \texttt{0.000000} \\
-  \texttt{reg\_cpu\_wt\_hamming} & \texttt{0.000000} \\
-  \texttt{reg\_value\_cpu\_wt\_individual} & \texttt{0.000000} \\
-  \texttt{reg\_value\_cpu\_wt\_hamming} & \texttt{0.000000} \\
-  \texttt{inst\_addr\_cpu\_wt\_individual} & \texttt{0.000000} \\
-  \texttt{inst\_addr\_cpu\_wt\_hamming} & \texttt{0.000000} \\
-  \texttt{data\_addr\_cpu\_wt\_individual} & \texttt{0.000000} \\
-  \texttt{data\_addr\_cpu\_wt\_hamming} & \texttt{0.000000} \\
-  \texttt{inst\_addr\_mem\_wt\_individual} & \texttt{0.000000} \\
-  \texttt{inst\_addr\_mem\_wt\_hamming} & \texttt{0.000000} \\
-  \texttt{inst\_value\_mem\_wt\_individual} & \texttt{0.000000} \\
-  \texttt{inst\_value\_mem\_wt\_hamming} & \texttt{0.000000} \\
-  \texttt{data\_addr\_mem\_wt\_individual} & \texttt{0.000000} \\
-  \texttt{data\_addr\_mem\_wt\_hamming} & \texttt{0.000000} \\
-  \texttt{data\_value\_cpu\_wt\_individual\_read} & \texttt{0.000000} \\
-  \texttt{data\_value\_cpu\_wt\_individual\_write} & \texttt{0.000000} \\
-  \texttt{data\_value\_cpu\_wt\_hamming\_read} & \texttt{0.000000} \\
-  \texttt{data\_value\_cpu\_wt\_hamming\_write} & \texttt{0.000000}
-\end{tabular}
+\texttt{wattage} is parameterized on a number of values called
+\textit{traits}.  These describe the processor's power usage
+characteristics and thus can be tweaked to retarget \texttt{wattage}
+to any reasonable microarchitecture.  The complete list of parameters
+can be obtained by invoking \texttt{wattage} with the command line
+argument \texttt{-print\_trait\_names}.
 
-\clearpage
+\begin{minted}[linenos, frame=lines]{bash}
+  ./pin/pin -t wattage.so -print_trait_names -- ls
+\end{minted}
 
-\begin{tabular}{lc}
-  \texttt{data\_value\_mem\_wt\_individual\_read} & \texttt{0.000000} \\
-  \texttt{data\_value\_mem\_wt\_individual\_write} & \texttt{0.000000} \\
-  \texttt{data\_value\_mem\_wt\_hamming\_read} & \texttt{0.000000} \\
-  \texttt{data\_value\_mem\_wt\_hamming\_write} & \texttt{0.000000} \\
-  \texttt{category\_default\_weight} & \texttt{0.000000} \\
-  \texttt{category\_generic\_alu\_weight} & \texttt{0.000000} \\
-  \texttt{category\_integer\_multiplication\_weight} & \texttt{0.000000} \\
-  \texttt{category\_integer\_division\_weight} & \texttt{0.000000} \\
-  \texttt{category\_float\_division\_weight} & \texttt{0.000000} \\
-  \texttt{category\_unary\_arithmetic\_operation\_weight} & \texttt{0.000000} \\
-  \texttt{category\_binary\_arithmetic\_operation\_weight} & \texttt{0.000000} \\
-  \texttt{category\_shift\_rotate\_weight} & \texttt{0.000000} \\
-  \texttt{category\_double\_shift\_weight} & \texttt{0.000000} \\
-  \texttt{category\_conditional\_move\_weight} & \texttt{0.000000} \\
-  \texttt{category\_set\_weight} & \texttt{0.000000} \\
-  \texttt{category\_jump\_weight} & \texttt{0.000000} \\
-  \texttt{category\_loop\_weight} & \texttt{0.000000} \\
-  \texttt{category\_call\_weight} & \texttt{0.000000} \\
-  \texttt{category\_return\_weight} & \texttt{0.000000} \\
-  \texttt{category\_sign\_extension\_weight} & \texttt{0.000000} \\
-  \texttt{category\_zero\_extension\_weight} & \texttt{0.000000} \\
-  \texttt{category\_sse\_weight} & \texttt{0.000000} \\
-  \texttt{category\_mmx\_weight} & \texttt{0.000000} \\
-  \texttt{category\_system\_weight} & \texttt{0.000000} \\
-  \texttt{category\_nop\_weight} & \texttt{0.000000}
-\end{tabular}
+The \texttt{category\_*\_weight} traits describe the base instruction
+costs for instructions belonging to a certain category -- for instance
+\texttt{category\_float\_division\_weight} is the base instruction
+cost for instructions that perform floating point divisions.  When
+computing base instruction costs, we choose towards the most specific
+category an instruction belongs to, so an integer division instruction
+will incur \texttt{category\_integer\_division\_weight} as its base
+instruction cost while an arithmetic integer operation that doesn't
+fall into any specific category will be taken to consume
+\texttt{category\_generic\_alu\_weight}.
+
+The names rest of the traits follow a specific format.  As an example,
+consider the \texttt{data\_value\_mem\_wt\_individual\_write} instruction:
+
+\begin{description}
+\item[\texttt{\hlight{data\_value}\_mem\_wt\_individual\_write}] \hfill
+
+  \texttt{data\_value} is the \textit{quantity} this weight will act
+  on.  Each of these are separately documented below.
+
+\item[\texttt{data\_value\hlight{\_mem\_wt}\_individual\_write}] \hfill
+
+  \texttt{mem\_wt} tell us that this weight affects the quantity's
+  contribution to the energy estimate for the \textit{memory
+    subsystem}.  The alternative for this is \texttt{cpu\_wt}, such
+  weights affect the contribution to the energy estimate for the
+  \textit{CPU subsystem}.
+
+\item[\texttt{data\_value\_mem\_wt\_\hlight{individual}\_write}] \hfill
+
+  \texttt{individual} tells us that this weight is multiplied with the
+  \textit{number of ones} in the current value of quantity (so if the
+  value of the quantity is \texttt{42}, this weight will be multiplied
+  with \texttt{3}).  The alternative to this is \texttt{hamming} which
+  tells us to multiply the weight with the number of bits
+  \textit{changed} from the last value of the quantity (so, for
+  instance, when the value changes from \texttt{42} to \text{50} the
+  weight is multiplied with \text{2}).
+
+\item[\texttt{data\_value\_mem\_wt\_individual\_\hlight{write}}] \hfill
+
+  This optional part of the trait name tells us that the weight will
+  be considered when the quantity is being \textit{written} to the
+  memory.  The alternative is \texttt{read} with the obvious meaning.
+  
+\end{description}
+
+The quantities that \texttt{wattage} can be parameterized on are
+(these are possible values for the very first fragment of a trait's
+name):
+
+\begin{description}
+  \item[\texttt{imm\_operand}]\hfill \\ The immediate operands
+    embedded in the current instruction.  So for \texttt{movq \$1024,
+      \%rax}, the value of this quantity is \texttt{42}.
+    
+  \item[\texttt{reg}] \hfill \\ The code for any registers accessed in
+    the current instruction.  For \texttt{movq \$1024, \%rsi}, this
+    will be \texttt{6}, the encoding for \texttt{\%rsi}.
+    
+  \item[\texttt{reg\_value}] \hfill \\ The value of the register file.
+    Wattage interprets this as the cumulative value of all the general
+    purpose registers.
+
+  \item[\texttt{inst\_addr}] \hfill \\ The instruction address.
+
+  \item[\texttt{data\_addr}] \hfill \\ The address of the data
+    accessed in the current instruction, if any.
+
+  \item[\texttt{inst\_value}] \hfill \\ The value of the current
+    instruction (interpreted as a binary blob of data).
+
+  \item[\texttt{data\_value}] \hfill \\ The value of the data fetched
+    in the current instruction, if any.
+
+\end{description}
