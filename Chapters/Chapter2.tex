@@ -1,0 +1,93 @@
+% Chapter Template
+
+\chapter{Estimating power consumption with Pin}
+
+\label{Chapter2}
+
+\lhead{Chapter 2. \emph{Estimating power consumption with Pin}}
+
+To estimate power consumption we implemented the estimation technique
+mentioned in \cite[Steinke et. al.]{steinke} as a
+pintool\footnote{https://github.com/sanjoy/wattage}.  We then used
+this tool to estimate the power consumption of several sorting
+algorithms.
+
+Power consumed by a processor is split into four categories by
+\cite{steinke} and the implementation reports each of them separately:
+
+\begin{description*}
+\item[$E_{cpu\_instr}$] the instruction-dependent costs inside the CPU
+\item[$E_{cpu\_data}$] the data-dependent costs inside the CPU
+\item[$E_{mem\_instr}$] the instruction-dependent costs in the
+  instruction memory
+\item[$E_{mem\_data}$] the data-dependent costs in the data memory
+\end{description*}
+
+\section{Factors contributing to power usage}
+
+There are several processor traits or parameters highlighted by
+\cite{steinke} as factors that contribute to the power profile of a
+program.  The tool is parameterized on all these factors and the
+significance of each one is listed in appendix \ref{AppendixA}.  Since
+we did not have detailed information about x86 processors with us that
+would allow us to infer these values, we had to resort to approximate
+guesses for our experiments.  (TODO: document the exact values as an
+appendix once they are finalized).
+
+It is worth noting that this parameterization allows us to estimate or
+simulate the power consumption of any arbitrary x86 micro-architecture
+on any arbitrary x86 micro-architecture.  For instance, we can easily
+simulate the power profile of an Intel Atom processor on an a Sandy
+Bridge implementation of the x86 USA.
+
+\section{The implementation}
+
+\subsection{\texttt{wattage.so}: the pintool}
+
+As mentioned above, the estimator is implemented as a pintool (which
+will be referred to as \textit{wattage} from this point on) -- the
+estimator frameowrk compiles to a shared object we pass to pin.  For
+instance, a sample invocation that measures the non-IO energy
+consumption for the POSIX utility \texttt{ls} will look like
+
+\begin{minted}[linenos, frame=lines]{bash}
+ $ pin -t wattage.so -output ls-power-consumption.out -traits_file \
+   ...  x86.traits -- ls
+  file-0   file-1   file-2   file-3   file-4
+ $ cat ls-power-consumption.out
+  [cpu_instr] = 9042445.000000
+  [cpu_data] = 4538730.000000
+  [mem_instr] = 6167330.000000
+  [mem_data] = 514330.000000
+  [TOTAL] = 20262834.000000
+\end{minted}
+
+The pintool registers a callback for \textit{each} instruction which
+tracks the various contributing factors mentioned in \cite{steinke}.
+Naturally, this is rather expensive; it isn't unusual for executables
+to run 30,000 times slower under \textit{wattage}.  While there
+certainly are opportunities for optimization, most of the performance
+hit comes from unavoidable work; we need to compare the current,
+possibly modified, register file with the previous register file at
+instruction granularity.
+
+\subsection{Gathering data from \texttt{tablegen}}
+
+Apart from the factors mentioned in appendix \ref{AppendixA},
+\textit{wattage} need to know the base cost for every instruction.
+Providing this information per instruction is both tedious and
+unnecessary -- dividing up the ISA into chunks of instructions with
+similar itineraries allows us to provide a single base-cost figure per
+such category.  Such a categorization can be extracted from the
+database of architecture-specific information LLVM stores as
+\texttt{*.td} files.
+
+We used \texttt{tablegen}, a standard utility to parse and
+semantically understand the architecture-specific \texttt{*.td} files
+to generate tables that categorizes each x86 opcode to one of the 21
+categories that \textit{wattage} knows about.  \texttt{tablegen} is
+invoked as a part of \textit{wattage}'s build process.
+
+\section{Experiments}
+
+(TODO)
