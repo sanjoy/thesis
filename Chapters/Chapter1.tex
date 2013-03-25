@@ -289,9 +289,42 @@ recompiling them -- a welcome convenience.
 
 Pin breaks up the execution of a program into \textit{traces}, or
 straight line sequence of machine instructions.  Pin runs callbacks
-provided by the tool (a shared object, essentially) on this trace to
-generate a new instrumented trace which is then executed.  In a way,
-Pin behaves like a `just in time' (JIT) compiler.  This property also
-ensures that instructions that are never executed will never be
-instrumented.
+provided by the user-created tool (a shared object, essentially) on
+this trace to generate a new instrumented trace which is then
+executed.  In a way, Pin is essentially a `just in time' (JIT)
+compiler, traces are recompiled into instrumented traces just before
+they're executed.  To be instrumented, an instruction needs to be
+executed at least once.
+
+Pin provides a rich introspection API to reading off the state of the
+processor; like the state of the register file and the last value read
+off the data bus.  Such facilities were instrumental (no pun
+intended!) in our decision to adopt it.
+
+\subsubsection{An example Pintool}
+
+Consider the simplest possible tool -- one which counts the number of
+instructions executed by an executing binary (a complete tool that
+does this can be found in \texttt{tools/ManualExamples/inscount0.cpp}
+in the Pin distribution).  Here is how such a tool would look in
+principle:
+
+\begin{minted}[linenos, frame=lines]{cpp}
+static void one_instruction_executed() {
+  inst_count++;
+}
+
+static void instrument_instruction(INS ins, void *) {
+  /* Insert a call to one_instruction_executed before every 
+   * instruction, no arguments are passed.  */
+  INS_InsertCall(ins, IPOINT_BEFORE, (AFUNPTR)one_instruction_executed, 
+                  IARG_END);
+}
+
+int main(int argc, char * argv[]) {
+  /* ... */
+  INS_AddInstrumentFunction(instrument_instruction, 0);
+  /* ... */
+}
+\end{minted}
 
