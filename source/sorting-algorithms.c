@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #ifdef NDEBUG
 #define PRINT_FUNCTION_NAME do {} while(0)
@@ -155,6 +156,18 @@ static int is_sorted(int *array, int length) {
 }
 #endif /* NDEBUG */
 
+inline uint64_t rdtsc() {
+  uint32_t lo, hi;
+  __asm__ __volatile__ (
+      "xorl %%eax, %%eax\n"
+      "cpuid\n"
+      "rdtsc\n"
+      : "=a" (lo), "=d" (hi)
+      :
+      : "%ebx", "%ecx" );
+  return (uint64_t)hi << 32 | lo;
+}
+
 int main(int argc, char **argv) {
   if (argc != 2) {
     show_usage(argv[0]);
@@ -179,7 +192,12 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  sort_function(array, length);
+  {
+    uint64_t begin = rdtsc();
+    sort_function(array, length);
+    printf("time = %ld\n", (long) (rdtsc() - begin));
+  }
+
   assert(is_sorted(array, length));
 
   return 0;
