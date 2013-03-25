@@ -17,6 +17,14 @@ argument \texttt{-print\_trait\_names}.
   ./pin/pin -t wattage.so -print_trait_names -- ls
 \end{minted}
 
+\section{Classification of parameters}
+
+The above command spits out forty-five traits.  Instead of describing
+them individually, a more systematic methodology would be to partition
+them into two separate forms:
+
+\subsection{Traits of the form \texttt{category\_*\_weight}}
+
 The \texttt{category\_*\_weight} traits describe the base instruction
 costs for instructions belonging to a certain category -- for instance
 \texttt{category\_float\_division\_weight} is the base instruction
@@ -28,47 +36,21 @@ instruction cost while an arithmetic integer operation that doesn't
 fall into any specific category will be taken to consume
 \texttt{category\_generic\_alu\_weight}.
 
-The names rest of the traits follow a specific format.  As an example,
-consider the \texttt{data\_value\_mem\_wt\_individual\_write} instruction:
+\subsection{Traits of the form \texttt{quantity\_subsystem\_wt\_(individual | hamming) \allowbreak [\_(read | write)]}}
+
+The names rest of the traits follow the form
+\texttt{quantity\_subsystem\_wt\_(individual | hamming) \allowbreak
+  [\_(read | write)]}.  We describe the elements that make up the
+above form using \texttt{data\_value\_mem\_wt\_individual\_write} as
+an example.
 
 \begin{description}
 \item[\texttt{\hlight{data\_value}\_mem\_wt\_individual\_write}] \hfill
 
   \texttt{data\_value} is the \textit{quantity} this weight will act
-  on.  Each of these are separately documented below.
+  on.  The possible values for this are
 
-\item[\texttt{data\_value\hlight{\_mem\_wt}\_individual\_write}] \hfill
-
-  \texttt{mem\_wt} tell us that this weight affects the quantity's
-  contribution to the energy estimate for the \textit{memory
-    subsystem}.  The alternative for this is \texttt{cpu\_wt}, such
-  weights affect the contribution to the energy estimate for the
-  \textit{CPU subsystem}.
-
-\item[\texttt{data\_value\_mem\_wt\_\hlight{individual}\_write}] \hfill
-
-  \texttt{individual} tells us that this weight is multiplied with the
-  \textit{number of ones} in the current value of quantity (so if the
-  value of the quantity is \texttt{42}, this weight will be multiplied
-  with \texttt{3}).  The alternative to this is \texttt{hamming} which
-  tells us to multiply the weight with the number of bits
-  \textit{changed} from the last value of the quantity (so, for
-  instance, when the value changes from \texttt{42} to \text{50} the
-  weight is multiplied with \text{2}).
-
-\item[\texttt{data\_value\_mem\_wt\_individual\_\hlight{write}}] \hfill
-
-  This optional part of the trait name tells us that the weight will
-  be considered when the quantity is being \textit{written} to the
-  memory.  The alternative is \texttt{read} with the obvious meaning.
-  
-\end{description}
-
-The quantities that \texttt{wattage} can be parameterized on are
-(these are possible values for the very first fragment of a trait's
-name):
-
-\begin{description}
+  \begin{description*}
   \item[\texttt{imm\_operand}]\hfill \\ The immediate operands
     embedded in the current instruction.  So for \texttt{movq \$1024,
       \%rax}, the value of this quantity is \texttt{42}.
@@ -92,4 +74,31 @@ name):
   \item[\texttt{data\_value}] \hfill \\ The value of the data fetched
     in the current instruction, if any.
 
+  \end{description*}
+
+\item[\texttt{data\_value\hlight{\_mem\_wt}\_individual\_write}] \hfill
+
+  \texttt{mem\_wt} tell us that this weight affects the quantity's
+  contribution to the energy estimate for the \textit{memory
+    subsystem}.  The alternative for this is \texttt{cpu\_wt}, such
+  weights affect the contribution to the energy estimate for the
+  \textit{CPU subsystem}.
+
+\item[\texttt{data\_value\_mem\_wt\_\hlight{individual}\_write}] \hfill
+
+  \texttt{individual} tells us that this weight is multiplied with the
+  \textit{number of ones} in the current value of quantity (so if the
+  value of the quantity is \texttt{42}, this weight will be multiplied
+  with \texttt{3}).  The alternative to this is \texttt{hamming} which
+  tells that the weight is multiplied with the number of bits
+  \textit{changed} from the last value of the quantity (so, for
+  instance, when the value changes from \texttt{42} to \text{50} the
+  weight is multiplied with \text{2}).
+
+\item[\texttt{data\_value\_mem\_wt\_individual\_\hlight{write}}] \hfill
+
+  This optional part of the trait name tells us that the weight will
+  be considered when the quantity is being \textit{written} to the
+  memory.  The alternative is \texttt{read} with the obvious meaning.
+  
 \end{description}
