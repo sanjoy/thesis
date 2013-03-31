@@ -156,7 +156,7 @@ static int is_sorted(int *array, int length) {
 }
 #endif /* NDEBUG */
 
-inline uint64_t rdtsc() {
+inline uint64_t __attribute__((always_inline)) rdtsc(void) {
   uint32_t lo, hi;
   __asm__ __volatile__ (
       "xorl %%eax, %%eax\n"
