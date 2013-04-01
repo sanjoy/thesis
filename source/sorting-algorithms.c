@@ -175,7 +175,8 @@ int main(int argc, char **argv) {
   }
 
   int array[] = { 74, 85, 28, 4, 49, 89, 27, 26, 70, 21,
-                  30, 18, 69, 66, 18, 20, 93, 39, 72 };
+                  30, 18, 69, 66, 18, 20, 93, 39, 72, 53,
+                  5, 5, 7, 1024};
   int length = sizeof(array) / sizeof(array[0]);
   void (*sort_function) (int *, int);
 
