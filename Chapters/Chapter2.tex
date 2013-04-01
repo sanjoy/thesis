@@ -88,6 +88,23 @@ to generate tables that categorizes each x86 opcode to one of the 21
 categories that \textit{wattage} knows about.  \texttt{tablegen} is
 invoked as a part of \textit{wattage}'s build process.
 
+\subsection{Non-determinism}
+
+While the model we worked with is itself deterministic, there are
+various issues which may make estimated power consumption differ from
+run to run; \textit{even} in exceedingly simple programs that don't
+have any obvious non-deterministic behavior.  This is due to the
+interaction between the extremely low-level instrumentation of our
+program and the
+ASLR\footnote{http://en.wikipedia.org/wiki/Address\_space\_layout\_randomization}.
+
+Since the \texttt{.text} and stack pages are likely to be mapped to
+different virtual addresses each run, the instruction addresses and
+the memory addresses are non-deterministic in a program that is
+completely deterministic in the semantics of its source language.
+This directly leads to the non-determinism of our power consumption
+estimates.
+
 \section{Experiments}
 
-(TODO)
+
