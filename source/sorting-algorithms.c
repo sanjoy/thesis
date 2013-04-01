@@ -193,11 +193,17 @@ int main(int argc, char **argv) {
     return 1;
   }
 
+#ifdef PRINT_TIME
   {
     uint64_t begin = rdtsc();
+#endif
+
     sort_function(array, length);
+
+#ifdef PRINT_TIME
     printf("time = %ld\n", (long) (rdtsc() - begin));
   }
+#endif
 
   assert(is_sorted(array, length));
 
