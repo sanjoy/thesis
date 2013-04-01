@@ -102,3 +102,14 @@ an example.
   memory.  The alternative is \texttt{read} with the obvious meaning.
   
 \end{description}
+
+\subsection{Other traits}
+
+Saving the traits mentione above, \texttt{wattage} parameterizes on
+two other parameters, \texttt{base\_mem\_value\_wt} and
+\texttt{base\_mem\_word\_width\_wt}.  These are used to approximate
+the $BaseMem$ parameter mentioned in \cite{steinke}.  $BaseMem(buffer,
+bufferSize)$ is calculated as $ValueScale \times HammingWeight(buffer)
++ WidthScale \times bufferSize$ where $ValueScale$ is
+\texttt{base\_mem\_value\_wt} and $WidthScale$ is
+\texttt{base\_mem\_word\_width\_wt}.
