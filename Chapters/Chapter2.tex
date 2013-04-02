@@ -50,7 +50,7 @@ estimator frameowrk compiles to a shared object we pass to pin.  For
 instance, a sample invocation that measures the non-IO energy
 consumption for the POSIX utility \texttt{ls} will look like
 
-\begin{minted}[linenos, frame=lines]{bash}
+\begin{minted}[frame=lines]{bash}
  $ pin -t wattage.so -output ls-power-consumption.out -traits_file \
    ...  x86.traits -- ls
   file-0   file-1   file-2   file-3   file-4
