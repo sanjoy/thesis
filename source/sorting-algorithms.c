@@ -174,10 +174,20 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  int array[] = { 74, 85, 28, 4, 49, 89, 27, 26, 70, 21,
-                  30, 18, 69, 66, 18, 20, 93, 39, 72, 53,
-                  5, 5, 7, 1024};
-  int length = sizeof(array) / sizeof(array[0]);
+  int array_values[] = {
+#include "numbers.inc"
+  };
+  int length = sizeof(array_values) / sizeof(array_values[0]);
+
+#ifdef USE_MALLOC
+  int *array = malloc(sizeof(int) * length);
+  for (int i = 0; i < length; i++) {
+    array[i] = array_values[i];
+  }
+#else  /* USE_MALLOC */
+  int *array = array_values;
+#endif /* USE_MALLOC */
+
   void (*sort_function) (int *, int);
 
   if (strcmp(argv[1], "--bubble-sort") == 0) {
