@@ -12,138 +12,6 @@
   } while(0)
 #endif
 
-static void bubble_sort(int *array, int length) {
-  PRINT_FUNCTION_NAME;
-
-  for (int i = (length - 1); i > 0; i--) {
-    for (int j = 1; j <= i; j++) {
-      if (array[j - 1] > array[j]) {
-        int temp = array[j - 1];
-        array[j - 1] = array[j];
-        array[j] = temp;
-      }
-    }
-  }
-}
-
-static void insertion_sort(int *array, int length) {
-  PRINT_FUNCTION_NAME;
-
-  for (int i = 1 ; i <= (length - 1); i++) {
-    int index = i;
-    int tmp;
-
-    while (index > 0 && array[index] < array[index - 1]) {
-      tmp = array[index];
-      array[index] = array[index - 1];
-      array[index - 1] = tmp;
-
-      index--;
-    }
-  }
-}
-
-static int partition(int *array, int left, int right) {
-  int pivot = array[left];
-  int i = left, j = right + 1;
-
-  while (1) {
-    do {
-      ++i;
-    } while(array[i] <= pivot && i <= right);
-
-    do {
-      --j;
-    } while(array[j] > pivot);
-
-    if( i >= j ) break;
-    int temp = array[i];
-    array[i] = array[j];
-    array[j] = temp;
-
-  }
-
-  int temp = array[left];
-  array[left] = array[j];
-  array[j] = temp;
-
-  return j;
-}
-
-static void quick_sort_recursive(int *array, int left, int right) {
-  if (left < right) {
-    int j = partition(array, left, right);
-    quick_sort_recursive(array, left, j - 1);
-    quick_sort_recursive(array, j + 1, right);
-  }
-}
-
-static void quick_sort(int *array, int length) {
-  PRINT_FUNCTION_NAME;
-  quick_sort_recursive(array, 0, length - 1);
-}
-
-static void merge(int *array, int *temp, int left, int mid, int right) {
-  int left_end = mid - 1;
-  int tmp_pos = left;
-  int num_elements = right - left + 1;
-
-  while ((left <= left_end) && (mid <= right)) {
-    if (array[left] <= array[mid]) {
-      temp[tmp_pos] = array[left];
-      tmp_pos = tmp_pos + 1;
-      left = left +1;
-    } else {
-      temp[tmp_pos] = array[mid];
-      tmp_pos = tmp_pos + 1;
-      mid = mid + 1;
-    }
-  }
-
-  while (left <= left_end) {
-    temp[tmp_pos] = array[left];
-    left = left + 1;
-    tmp_pos = tmp_pos + 1;
-  }
-
-  while (mid <= right) {
-    temp[tmp_pos] = array[mid];
-    mid = mid + 1;
-    tmp_pos = tmp_pos + 1;
-  }
-
-  for (int i = 0; i <= num_elements; i++) {
-    array[right] = temp[right];
-    right = right - 1;
-  }
-}
-
-static void merge_sort_recursive(int *array, int *temp, int left, int right) {
-  if (right > left) {
-    int mid = (right + left) / 2;
-    merge_sort_recursive(array, temp, left, mid);
-    merge_sort_recursive(array, temp, mid + 1, right);
-
-    merge(array, temp, left, mid + 1, right);
-  }
-}
-
-static void merge_sort(int *array, int length) {
-  PRINT_FUNCTION_NAME;
-
-  int *temporary = malloc(sizeof(int) * length);
-  assert(temporary);
-
-  merge_sort_recursive(array, temporary, 0, length - 1);
-
-  free(temporary);
-}
-
-static void show_usage(const char *program_name) {
-  printf("usage: %s [--bubble-sort | --insertion-sort | --quick-sort\n"
-         "          |--merge-sort ]\n", program_name);
-}
-
 #ifndef NDEBUG
 static int is_sorted(int *array, int length) {
   if (length == 0) return 1;
@@ -156,6 +24,7 @@ static int is_sorted(int *array, int length) {
 }
 #endif /* NDEBUG */
 
+#ifdef PRINT_TIME
 inline uint64_t __attribute__((always_inline)) rdtsc(void) {
   uint32_t lo, hi;
   __asm__ __volatile__ (
@@ -166,6 +35,105 @@ inline uint64_t __attribute__((always_inline)) rdtsc(void) {
       :
       : "%ebx", "%ecx" );
   return (uint64_t)hi << 32 | lo;
+}
+#endif /* PRINT_TIME */
+
+#define swap(a, b) do {                         \
+    int temp = (a); (a) = (b); (b) = temp;      \
+  } while(0)
+
+static void bubble_sort(int *array, int length) {
+  PRINT_FUNCTION_NAME;
+
+  for (int i = length; i > 0; i--) {
+    for (int j = 1; j < i; j++) {
+      if (array[j - 1] > array[j]) swap(array[j - 1], array[j]);
+    }
+  }
+}
+
+static void insertion_sort(int *array, int length) {
+  PRINT_FUNCTION_NAME;
+
+  for (int i = 1; i < length; i++) {
+    int index = i;
+
+    while (index > 0 && array[index] < array[index - 1]) {
+      swap(array[index], array[index - 1]);
+      index--;
+    }
+  }
+}
+
+static int partition(int *array, const int length) {
+  /* lifted from http://en.wikipedia.org/wiki/Quicksort */
+  const int pivot_value = *array;
+  swap(*array, array[length - 1]);
+  int store_index = 0;
+
+  for (int i = 0; i < (length - 1); i++) {
+    if (array[i] <= pivot_value) {
+      swap(array[i], array[store_index]);
+      store_index++;
+    }
+  }
+  swap(array[store_index], array[length - 1]);
+  return store_index;
+}
+
+static void quick_sort_recursive(int *array, const int length) {
+  if (length > 1) {
+    const int pivot_index = partition(array, length);
+    quick_sort_recursive(array, pivot_index);
+    quick_sort_recursive(array + pivot_index + 1, length - pivot_index - 1);
+  }
+}
+
+static void quick_sort(int *array, int length) {
+  PRINT_FUNCTION_NAME;
+  quick_sort_recursive(array, length);
+}
+
+static void merge(int *array, int *buffer, int midpoint, int length) {
+  int begin_a = 0, begin_b = midpoint;
+  int *original_buffer = buffer;
+
+  while (begin_a < midpoint && begin_b < length) {
+    *buffer++ =
+        array[begin_a] < array[begin_b] ? array[begin_a++] : array[begin_b++];
+  }
+
+  while (begin_a < midpoint) *buffer++ = array[begin_a++];
+  while (begin_b < length) *buffer++ = array[begin_b++];
+
+  memcpy(array, original_buffer, sizeof(int) * length);
+}
+
+static void merge_sort_recursive(int *array, int *buffer, const int length) {
+  if (length > 1) {
+    const int midpoint = length / 2;
+    merge_sort_recursive(array, buffer, midpoint);
+    merge_sort_recursive(array + midpoint, buffer + midpoint,
+                         length - midpoint);
+
+    merge(array, buffer, midpoint, length);
+  }
+}
+
+static void merge_sort(int *array, int length) {
+  PRINT_FUNCTION_NAME;
+
+  int *temporary = malloc(sizeof(int) * length);
+  assert(temporary && "malloc failed");
+
+  merge_sort_recursive(array, temporary, length);
+
+  free(temporary);
+}
+
+static void show_usage(const char *program_name) {
+  printf("usage: %s [--bubble-sort | --insertion-sort | --quick-sort\n"
+         "          |--merge-sort ]\n", program_name);
 }
 
 int main(int argc, char **argv) {
@@ -215,7 +183,6 @@ int main(int argc, char **argv) {
   }
 #endif
 
-  assert(is_sorted(array, length));
-
+  assert(is_sorted(array, length) && "array not sorted");
   return 0;
 }
