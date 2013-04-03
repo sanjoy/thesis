@@ -107,4 +107,124 @@ estimates.
 
 \section{Experiments}
 
+To justify the viability of our tool, we ran some experiments in
+measuring the power characteristics of sample programs.
+
+\subsection{Power Characteristics of Four Sorting Algorithms}
+
+In this experiment, we evaluated the power characteristics of four
+common sorting algorithms (the source code to which can be found in
+Appendix \ref{AppendixB}):
+
+\begin{enumerate*}
+\item Bubble Sort
+\item Insertion Sort
+\item Quick Sort
+\item Merge Sort
+\end{enumerate*}
+
+These sort algorithms were run on a pseudo-randomly generated (at
+compile-time) array of a thousand integers.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics{Figures/energy-vs-sort-algorithm.eps}
+  \rule{35em}{0.5pt}
+  \caption{Total estimated power consumption for some sorting algorithms}
+  \label{fig:total-power-sort-algo}
+\end{figure}
+
+The total power consumption, as shown in figure
+\ref{fig:total-power-sort-algo}, is unsurprising.  The two most CPU
+efficient algorithms, quick sort and merge sort are also the most
+power efficient.  Merge sort consumes some additional amount of power
+which can be attributed to the writes to the auxiliary array.
+Similarly the two least CPU efficient algorithms, bubble sort and
+insertion sort, are also the most power inefficient.  The
+implementation of bubble sort used (see appendix \ref{AppendixB})
+makes at least $\frac{n (n - 1)}{2}$ reads on any input.  This, and
+that it is slower than insertion sort on average input, explains the
+additional power consumed by bubble sort over insertion sort.
+
+The above graph, however, is dominated by the asymptotic efficiency of
+the algorithm; a program that runs for a significantly longer period
+of time \textit{will} consume more energy.  A more interesting metric
+in this respect is the average energy consumed per instruction,
+plotted in figure \ref{fig:power-per-inst-sort-algo}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics{Figures/energy-per-inst-vs-sort-algorithm.eps}
+  \rule{35em}{0.5pt}
+  \caption{Estimated power consumption per instruction for some sorting algorithms}
+  \label{fig:power-per-inst-sort-algo}
+\end{figure}
+
+The large variation in figure \ref{fig:power-per-inst-sort-algo}
+(insertion sort consumes 35\% more energy than merge sort per
+instruction) can be attributed to memory access patterns.  To make
+this idea more concrete, we first observe the graph of the same
+measurements (\ref{fig:power-per-inst-nomem-sort-algo} taken after
+assigning 0 weight to the \texttt{data\_addr\_*} traits (see appendix
+\ref{AppendixA}).  This makes \textit{wattage} neglect the individual
+and switching costs incurred by the value in the data bus.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics{Figures/energy-per-inst-nomem-vs-sort-algorithm.eps}
+  \rule{35em}{0.5pt}
+  \caption{Estimated power consumption per instruction for sorting
+    algorithms leaving out power consumption by the data address bus}
+  \label{fig:power-per-inst-nomem-sort-algo}
+\end{figure}
+
+The variation in figure \ref{fig:power-per-inst-nomem-sort-algo}
+between the sorting algorithms has reduced (quick sort now consumes
+15\% more power per instruction than bubble sort).  More remarkable is
+the difference in insertion sort's per instruction energy consumption
+-- insertion sort consumes 21.3\% more energy per instruction than
+bubble sort in figure \ref{fig:power-per-inst-sort-algo} while in
+\ref{fig:power-per-inst-nomem-sort-algo} the numbers are almost equal.
+This can be explained by observing that the bubble sort algorithm
+spends most of its time in linearly traversing through the input array
+and the consecutive addresses accessed in such a scenario have a
+hamming distance of approximately 2 (proof in appendix
+\ref{AppendixC}).  Insertion sort, in the average case, incurs more
+\textit{jumps} than bubble sort; bumping up this average hamming
+distance.  These jumps allow insertion sort to finish earlier than
+bubble-sort (and consume less \textit{total} energy, as seen in figure
+\ref{fig:total-power-sort-algo}).
+
+\subsection{Power Characteristics of the Quick Sort Algorithm}
+
+As a second experiment, we plotted the energy consumed to run the
+quick sort algorithm with the size of the input array.  The total
+energy consumed (figure \ref{fig:qsort-energy-per-array-length}) is
+dominated by quick sort's CPU time.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics{Figures/qsort-energy-total.eps}
+  \rule{35em}{0.5pt}
+  \caption{Estimated power consumption by quicksort for a given array size}
+  \label{fig:qsort-energy-per-array-length}
+\end{figure}
+
+We saw earlier that the energy consumed per instruction is more
+amenable to analysis than the total energy consumed.  That is the case
+here too.  We observe (in figure
+\ref{fig:qsort-energy-per-inst-per-array-length}) that the average
+energy per instruction goes down as the array size increases.  This
+can also be explained using \ref{eq:solved} -- the quick sort
+algorithm spends more time accessing contiguous memory locations when
+sorting large arrays than when sorting small ones.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics{Figures/qsort-energy-per-inst.eps}
+  \rule{35em}{0.5pt}
+  \caption{Estimated power consumption per instruction by quicksort
+    for a given array size}
+  \label{fig:qsort-energy-per-inst-per-array-length}
+\end{figure}
 
