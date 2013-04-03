@@ -149,7 +149,7 @@
 %	defined as \examname above so you cite it as \examname
 %----------------------------------------------------------------------------------------
 
-\thesistitle{Optimizing programs to reduce power consumption}
+\thesistitle{Optimizing Programs for Energy Efficiency}
 \supervisor{Dr. Partha Pratim \textsc{Das}}
 \degree{Master of Science}
 \authors{Sanjoy \textsc{Das}}
