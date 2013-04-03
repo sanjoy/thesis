@@ -1,7 +1,6 @@
 set terminal eps
 
 set yrange [0.6e+09:2.4e+09]
-set title "Characteristics of QuickSort"
 set xlabel "Size of array"
 set ylabel "pJoules"
 
@@ -14,6 +13,7 @@ plot "./qsort-energy-data" using 1:2:(1.0) smooth bezier                       \
 set output "qsort-energy-per-inst.eps"
 
 set yrange [7500:10000]
+set ylabel "pJoules per instruction"
 
 plot "< join ./qsort-energy-data ./qsort-inst-count-data" using 1:($2/$3):(1.0) \
         smooth bezier title "Energy Estimate per Instruction",  		\
