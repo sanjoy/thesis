@@ -1,18 +1,18 @@
 % Chapter Template
 
-\chapter{Estimating power consumption with Pin}
+\chapter{Instruction Level Energy Modelling using Pin}
 
 \label{Chapter2}
 
-\lhead{Chapter 2. \emph{Estimating power consumption with Pin}}
+\lhead{Chapter 2. \emph{Instruction Level Energy Modelling using Pin}}
 
-To estimate power consumption we implemented the estimation technique
+To estimate energy profiles of binaries we implemented the model
 mentioned in \cite[Steinke et. al.]{steinke} as a
 pintool\footnote{https://github.com/sanjoy/wattage}.  We then used
-this tool to estimate the power consumption of several sorting
-algorithms.
+this tool to estimate and analyze the energy profiles of several
+sorting algorithms.
 
-Power consumed by a processor is split into four categories by
+Energy used by a processor is split into four categories by
 \cite{steinke} and the implementation reports each of them separately:
 
 \begin{description*}
@@ -23,38 +23,38 @@ Power consumed by a processor is split into four categories by
 \item[$E_{mem\_data}$] the data-dependent costs in the data memory
 \end{description*}
 
-\section{Factors contributing to power usage}
+\section{Processor Traits}
 
 There are several processor traits or parameters highlighted by
-\cite{steinke} as factors that contribute to the power profile of a
-program.  The tool is parameterized on all these factors and the
+\cite{steinke} as factors that contribute to the energy profile of a
+program.  Our tool is parameterized on all these factors and the
 significance of each one is listed in appendix \ref{AppendixA}.  Since
 we did not have detailed information about x86 processors with us that
 would allow us to infer these values, we had to resort to approximate
-guesses for our experiments.  (TODO: document the exact values as an
-appendix once they are finalized).
+guesses for our experiments.  The values used in our experiments are
+listed in \ref{sec:trait-values}.
 
 It is worth noting that this parameterization allows us to estimate or
-simulate the power consumption of any arbitrary x86 micro-architecture
-on any arbitrary x86 micro-architecture.  For instance, we can easily
-simulate the power profile of an Intel Atom processor on an a Sandy
-Bridge implementation of the x86 USA.
+simulate the energy consumption of any arbitrary x86
+micro-architecture on any arbitrary x86 micro-architecture.  For
+instance, we can easily simulate the energy profile of an Intel Atom
+processor on an a Sandy Bridge implementation of the x86 ISA.
 
-\section{The implementation}
+\section{Implementation}
 
 \subsection{\texttt{wattage.so}: the pintool}
 
 As mentioned above, the estimator is implemented as a pintool (which
 will be referred to as \textit{wattage} from this point on) -- the
-estimator frameowrk compiles to a shared object we pass to pin.  For
+estimator framework compiles to a shared object we pass to pin.  For
 instance, a sample invocation that measures the non-IO energy
 consumption for the POSIX utility \texttt{ls} will look like
 
 \begin{minted}[frame=lines]{bash}
- $ pin -t wattage.so -output ls-power-consumption.out -traits_file \
+ $ pin -t wattage.so -output ls-energy-consumption.out -traits_file \
    ...  x86.traits -- ls
   file-0   file-1   file-2   file-3   file-4
- $ cat ls-power-consumption.out
+ $ cat ls-energy-consumption.out
   [cpu_instr] = 9042445.000000
   [cpu_data] = 4538730.000000
   [mem_instr] = 6167330.000000
@@ -67,61 +67,61 @@ tracks the various contributing factors mentioned in \cite{steinke}.
 Naturally, this is rather expensive; it isn't unusual for executables
 to run 30,000 times slower under \textit{wattage}.  While there
 certainly are opportunities for optimization, most of the performance
-hit comes from unavoidable work; we need to compare the current,
-possibly modified, register file with the previous register file at
-instruction granularity.
+hit comes from unavoidable work; for instance we need to compare the
+current, possibly modified, register file with the previous register
+file at instruction granularity.
 
 \subsection{Gathering data from \texttt{tablegen}}
 
 Apart from the factors mentioned in appendix \ref{AppendixA},
-\textit{wattage} need to know the base cost for every instruction.
+\textit{wattage} need to know the base cost (referred to as
+\textit{BaseCPU} in \cite{steinke}) for every x86 instruction.
 Providing this information per instruction is both tedious and
 unnecessary -- dividing up the ISA into chunks of instructions with
-similar itineraries allows us to provide a single base-cost figure per
-such category.  Such a categorization can be extracted from the
+similar itineraries allowed us to provide a single base-cost figure
+per such category.  Such a categorization can be extracted from the
 database of architecture-specific information LLVM stores as
 \texttt{*.td} files.
 
 We used \texttt{tablegen}, a standard utility to parse and
-semantically understand the architecture-specific \texttt{*.td} files
+semantically understand the architecture-specific \texttt{*.td} files,
 to generate tables that categorizes each x86 opcode to one of the 21
 categories that \textit{wattage} knows about.  \texttt{tablegen} is
 invoked as a part of \textit{wattage}'s build process.
 
 \subsection{Non-determinism}
 
-While the model we worked with is itself deterministic, there are
-various issues which may make estimated power consumption differ from
-run to run; \textit{even} in exceedingly simple programs that don't
-have any obvious non-deterministic behavior.  This is due to the
-interaction between the extremely low-level instrumentation of our
-program and
-ASLR\footnote{http://en.wikipedia.org/wiki/Address\_space\_layout\_randomization}.
+While the model we worked with is itself deterministic, the estimated
+energy consumption may differ from run to run; \textit{even} in
+exceedingly simple programs that don't have any obvious
+non-deterministic behavior.  This is due to the interaction between
+the extremely low-level instrumentation \textit{wattage} does and ASLR
+(Address Space Layout
+Randomization)\footnote{http://en.wikipedia.org/wiki/Address\_space\_layout\_randomization}.
 
 Since the \texttt{.text} and stack pages are likely to be mapped to
-different virtual addresses each run, the instruction addresses and
-the memory addresses are non-deterministic in a program that is
-completely deterministic in the semantics of its source language.
-This directly leads to non-determinism in our power consumption
-estimates.
+different virtual addresses each run, the instruction and emmory
+addresses are non-deterministic in programs that are completely
+deterministic in the semantics of their source language.  This
+directly leads to non-determinism in our estimates.
 
 \section{Experiments}
 
 To justify the viability of our tool, we ran some experiments in
-measuring the power characteristics of sample programs.
+measuring the energy characteristics of sample programs.
 
-\subsection{Power Characteristics of Four Sorting Algorithms}
+\subsection{Energy Profiles of Sorting Algorithms}
 
-In this experiment, we evaluated the power characteristics of four
-common sorting algorithms (the source code to which can be found in
-Appendix \ref{AppendixB}):
+In this experiment, we estimated the energy profile of four common
+sorting algorithms (the source code to which can be found in Appendix
+\ref{AppendixB}):
 
-\begin{enumerate*}
+\begin{itemize*}
 \item Bubble Sort
 \item Insertion Sort
 \item Quick Sort
 \item Merge Sort
-\end{enumerate*}
+\end{itemize*}
 
 These sort algorithms were run on a pseudo-randomly generated (at
 compile-time) array of a thousand integers.
@@ -130,101 +130,122 @@ compile-time) array of a thousand integers.
   \centering
   \includegraphics{Figures/energy-vs-sort-algorithm.eps}
   \rule{35em}{0.5pt}
-  \caption{Total estimated power consumption for some sorting algorithms}
-  \label{fig:total-power-sort-algo}
+  \caption{Total estimated energy consumption for some sorting algorithms}
+  \label{fig:total-energy-sort-algo}
 \end{figure}
 
-The total power consumption, as shown in figure
-\ref{fig:total-power-sort-algo}, is unsurprising.  The two most CPU
-efficient algorithms, quick sort and merge sort are also the most
-power efficient.  Merge sort consumes some additional amount of power
-which can be attributed to the writes to the auxiliary array.
+The estimated total energy consumption, as shown in figure
+\ref{fig:total-energy-sort-algo}, is unsurprising in the sense that
+the two most CPU efficient algorithms, quick sort and merge sort are
+also the most energy efficient.  The additional energy requirement of
+merge sort can be attributed to the writes to the auxiliary array.
 Similarly the two least CPU efficient algorithms, bubble sort and
-insertion sort, are also the most power inefficient.  The
+insertion sort, are also the most energy inefficient.  That the
 implementation of bubble sort used (see appendix \ref{AppendixB})
-makes at least $\frac{n (n - 1)}{2}$ reads on any input.  This, and
-that it is slower than insertion sort on average input, explains the
-additional power consumed by bubble sort over insertion sort.
+makes at least $\frac{n (n - 1)}{2}$ reads on any input and that it is
+slower than insertion sort on average input explains the additional
+energy consumed by bubble sort over insertion sort.
 
 The above graph, however, is dominated by the asymptotic efficiency of
 the algorithm; a program that runs for a significantly longer period
 of time \textit{will} consume more energy.  A more interesting metric
 in this respect is the average energy consumed per instruction,
-plotted in figure \ref{fig:power-per-inst-sort-algo}.
+plotted in figure \ref{fig:energy-per-inst-sort-algo}.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics{Figures/energy-per-inst-vs-sort-algorithm.eps}
   \rule{35em}{0.5pt}
-  \caption{Estimated power consumption per instruction for some sorting algorithms}
-  \label{fig:power-per-inst-sort-algo}
+  \caption{Estimated energy consumption per instruction for some sorting algorithms}
+  \label{fig:energy-per-inst-sort-algo}
 \end{figure}
 
-The large variation in figure \ref{fig:power-per-inst-sort-algo}
+The large variation in figure \ref{fig:energy-per-inst-sort-algo}
 (insertion sort consumes 35\% more energy than merge sort per
-instruction) can be attributed to memory access patterns.  To make
-this idea more concrete, we first observe the graph of the same
-measurements (\ref{fig:power-per-inst-nomem-sort-algo} taken after
-assigning 0 weight to the \texttt{data\_addr\_*} traits (see appendix
-\ref{AppendixA}).  This makes \textit{wattage} neglect the individual
-and switching costs incurred by the value in the data bus.
+instruction) can be attributed to memory access patterns.  To verify
+this hypothesis, we first observe the graph of the same measurements
+(figure \ref{fig:energy-per-inst-nomem-sort-algo}) taken after
+assigning 0 weight to the \texttt{data\_addr\_*} traits\footnote{See
+  appendix \ref{AppendixA}}, which makes \textit{wattage} neglect the
+individual and switching costs incurred by the data address in the
+memory bus.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics{Figures/energy-per-inst-nomem-vs-sort-algorithm.eps}
   \rule{35em}{0.5pt}
-  \caption{Estimated power consumption per instruction for sorting
-    algorithms leaving out power consumption by the data address bus}
-  \label{fig:power-per-inst-nomem-sort-algo}
+  \caption{Estimated energy consumption per instruction for sorting
+    algorithms leaving out energy consumption by the data address bus}
+  \label{fig:energy-per-inst-nomem-sort-algo}
 \end{figure}
 
-The variation in figure \ref{fig:power-per-inst-nomem-sort-algo}
-between the sorting algorithms has reduced (quick sort now consumes
-15\% more power per instruction than bubble sort).  More remarkable is
-the difference in insertion sort's per instruction energy consumption
--- insertion sort consumes 21.3\% more energy per instruction than
-bubble sort in figure \ref{fig:power-per-inst-sort-algo} while in
-\ref{fig:power-per-inst-nomem-sort-algo} the numbers are almost equal.
-This can be explained by observing that the bubble sort algorithm
-spends most of its time in linearly traversing through the input array
-and the consecutive addresses accessed in such a scenario have a
-hamming distance of approximately 2 (proof in appendix
-\ref{AppendixC}).  Insertion sort, in the average case, incurs more
-\textit{jumps} than bubble sort; bumping up this average hamming
-distance.  These jumps allow insertion sort to finish earlier than
-bubble-sort (and consume less \textit{total} energy, as seen in figure
-\ref{fig:total-power-sort-algo}).
+The variation in figure \ref{fig:energy-per-inst-nomem-sort-algo}
+between the sorting algorithms is lesser than that in figure
+\ref{fig:energy-per-inst-sort-algo} -- quick sort now consumes only
+15\% more energy per instruction than bubble sort.  More remarkable is
+the change in insertion sort's per instruction energy consumption --
+insertion sort consumes 21.3\% more energy per instruction than bubble
+sort in figure \ref{fig:energy-per-inst-sort-algo} while in figure
+\ref{fig:energy-per-inst-nomem-sort-algo} the numbers are almost
+equal.  This can be explained by observing that the bubble sort
+algorithm spends most of its time in linearly traversing through the
+input array.  The consecutive addresses accessed in such a scenario
+have a average hamming distance of approximately 2\footnote{For a
+  proof, see appendix \ref{AppendixC}}.  Insertion sort, in the
+average case, incurs more \textit{jumps} than bubble sort; bumping up
+this average hamming distance.  These jumps allow insertion sort to
+finish earlier than bubble-sort (and consume less \textit{total}
+energy, as seen in figure \ref{fig:total-energy-sort-algo}).
 
-\subsection{Power Characteristics of the Quick Sort Algorithm}
+\subsection{Energy Characteristics of the Quick Sort Algorithm}
 
 As a second experiment, we plotted the energy consumed to run the
 quick sort algorithm with the size of the input array.  The total
 energy consumed (figure \ref{fig:qsort-energy-per-array-length}) is
-dominated by quick sort's CPU time.
+dominated by quick sort's CPU time, as expected.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics{Figures/qsort-energy-total.eps}
   \rule{35em}{0.5pt}
-  \caption{Estimated power consumption by quicksort for a given array size}
+  \caption{Estimated energy consumption by quicksort for a given array size}
   \label{fig:qsort-energy-per-array-length}
 \end{figure}
 
-We saw earlier that the energy consumed per instruction is more
+We noted earlier that the energy consumed per instruction is more
 amenable to analysis than the total energy consumed.  That is the case
-here too.  We observe (in figure
-\ref{fig:qsort-energy-per-inst-per-array-length}) that the average
+here too.  We observe in figure
+\ref{fig:qsort-energy-per-inst-per-array-length} that the average
 energy per instruction goes down as the array size increases.  This
-can also be explained using \ref{eq:solved} -- the quick sort
-algorithm spends more time accessing contiguous memory locations when
-sorting large arrays than when sorting small ones.
+can be explained using \ref{eq:solved} -- the quick sort algorithm
+spends more time accessing contiguous memory locations when sorting
+large arrays than when sorting small ones.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics{Figures/qsort-energy-per-inst.eps}
   \rule{35em}{0.5pt}
-  \caption{Estimated power consumption per instruction by quicksort
+  \caption{Estimated energy consumption per instruction by quicksort
     for a given array size}
   \label{fig:qsort-energy-per-inst-per-array-length}
 \end{figure}
 
+\section{Future Work}
+
+While we'd like to think \textit{wattage} is currently very usable,
+there are some issues that can be addressed
+
+\begin{itemize}
+  \item Currently \textit{wattage} can only be used to analyze x86
+    programs.  It may be possible to extract architecture independent
+    parts of the codebase and retarget it to other architectures like
+    ARM.  Since pin only supports the x86 ISA, some other tool like
+    Valgrind\footnote{http://valgrind.org/} will have to be used.
+
+  \item \textit{wattage} doesn't track functional unit changes.  Using
+    detailed published information for specific x86
+    micro-architectures, it should be possible to extend
+    \textit{wattage} with instruction itineraries and have it account
+    for inter-instruction effects due to changes in the functional
+    units currently selected.
+\end{itemize}
