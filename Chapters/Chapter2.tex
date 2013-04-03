@@ -236,6 +236,14 @@ While we'd like to think \textit{wattage} is currently very usable,
 there are some issues that can be addressed
 
 \begin{description}
+  \item[Real Processor Data] \hfill \\ All the above analysis and
+    profiling is based on processor traits \textit{derived} from
+    published literature.  Such values may or may not be relevant in
+    currently prevalent x86 microarchitectures.  One major step
+    towards robustness would be to use regression on real data points
+    to calculate the processor traits of some commercially available
+    processors.
+
   \item[Support for non-x86 ISAs] \hfill \\ Currently \textit{wattage}
     can only be used to analyze x86 programs.  It may be possible to
     extract architecture independent parts of the codebase and
@@ -243,12 +251,12 @@ there are some issues that can be addressed
     supports the x86 ISA, some other tool like
     Valgrind\footnote{http://valgrind.org/} will have to be used.
 
-  \item[Track Function Units] \hfill \\ \textit{wattage} doesn't track
-    functional unit changes.  Using detailed published information for
-    specific x86 micro-architectures, it should be possible to extend
-    \textit{wattage} with instruction itineraries and have it account
-    for inter-instruction effects due to changes in the functional
-    units recruited in the current instruction.
+  \item[Track Functional Units] \hfill \\ \textit{wattage} doesn't
+    track functional unit changes.  Using detailed published
+    information for specific x86 micro-architectures, it should be
+    possible to extend \textit{wattage} with instruction itineraries
+    and have it account for inter-instruction effects due to changes
+    in the functional units recruited in the current instruction.
 
   \item[Partial Profiling] \hfill \\ \textit{wattage} slows down the
     programs being profiled by a factor of 10,000 to 30,000.  An easy
