@@ -235,6 +235,18 @@
     \bigskip
   \end{center}
 }
+
+\newenvironment{certificate}
+{
+  \btypeout{Certificate Page}
+  \thispagestyle{empty}
+  \null\vfil
+  \begin{center}
+    \setlength{\parskip}{0pt}
+    {\huge{\textit{Certificate}} \par}
+    \bigskip
+  \end{center}
+}
 %----------------------------------------------------------------------------------------
 {
   \vfil\vfil\vfil\null
