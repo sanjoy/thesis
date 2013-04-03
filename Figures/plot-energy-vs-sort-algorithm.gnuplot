@@ -9,3 +9,8 @@ set title "Power Profile of Sorting Algorithms"
 set xlabel "Sorting Algorithms"
 set ylabel "Energy Estimate (in pJoule)"
 plot "./energy-vs-sort-algorithm-data" using 0:3:xtic(2) with boxes
+
+set ylabel "Energy Estimate per Instruction (in pJoule)"
+set output "energy-per-inst-vs-sort-algorithm.eps"
+set yrange [0:11000]
+plot "./energy-per-inst-vs-sort-algorithm-data" using 0:3:xtic(2) with boxes
