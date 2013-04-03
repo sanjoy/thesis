@@ -113,3 +113,79 @@ bufferSize)$ is calculated as $ValueScale \times HammingWeight(buffer)
 + WidthScale \times bufferSize$ where $ValueScale$ is
 \texttt{base\_mem\_value\_wt} and $WidthScale$ is
 \texttt{base\_mem\_word\_width\_wt}.
+
+\section{Parameters for the x86}
+
+Parameters for the x86 ISA were derived from values mentioned in
+\cite{steinke} and \cite{lee}.  The inferences mentioned in this work
+should be largely resistant to reasonable modification to the CPU
+traits assumed.
+
+\begin{longtable}{l|l}
+  \caption{Estimated CPU Traits for the x86 ISA} \\
+
+  \hline \\
+
+  \texttt{imm\_operand\_cpu\_wt\_individual} & 1 \\
+  \texttt{imm\_operand\_cpu\_wt\_hamming} & 2 \\
+
+  \texttt{reg\_cpu\_wt\_individual} & 8.13 \\
+  \texttt{reg\_cpu\_wt\_hamming} & 4.73 \\
+
+  \texttt{reg\_value\_cpu\_wt\_individual} & 1 \\
+  \texttt{reg\_value\_cpu\_wt\_hamming} & 2 \\
+
+  \texttt{inst\_addr\_cpu\_wt\_individual} & 48 \\
+  \texttt{inst\_addr\_cpu\_wt\_hamming} & 219.9 \\
+
+  \texttt{data\_addr\_cpu\_wt\_individual} & 48 \\
+  \texttt{data\_addr\_cpu\_wt\_hamming} & 219.9 \\
+
+  \texttt{inst\_addr\_mem\_wt\_individual} & -19.2 \\
+  \texttt{inst\_addr\_mem\_wt\_hamming} & 138.9 \\
+
+  \texttt{inst\_value\_mem\_wt\_individual} & -115.3 \\
+  \texttt{inst\_value\_mem\_wt\_hamming} & 57.7 \\
+
+  \texttt{data\_addr\_mem\_wt\_individual} & -19.2 \\
+  \texttt{data\_addr\_mem\_wt\_hamming} & 138.9 \\
+
+  \texttt{data\_value\_cpu\_wt\_individual\_read} & 0 \\
+  \texttt{data\_value\_cpu\_wt\_individual\_write} & 0 \\
+
+  \texttt{data\_value\_cpu\_wt\_hamming\_read} & 0 \\
+  \texttt{data\_value\_cpu\_wt\_hamming\_write} & 0 \\
+
+  \texttt{data\_value\_mem\_wt\_individual\_read} & -115.3 \\
+  \texttt{data\_value\_mem\_wt\_individual\_write} & -60.4 \\
+
+  \texttt{data\_value\_mem\_wt\_hamming\_read} & 57.7 \\
+  \texttt{data\_value\_mem\_wt\_hamming\_write} & 22.8 \\
+
+  \texttt{category\_default\_weight} & 1000 \\
+  \texttt{category\_generic\_alu\_weight} & 896.87 \\
+  \texttt{category\_integer\_multiplication\_weight} & 900 \\
+  \texttt{category\_integer\_division\_weight} & 900 \\
+  \texttt{category\_float\_division\_weight} & 900 \\
+  \texttt{category\_unary\_arithmetic\_operation\_weight} & 800 \\
+  \texttt{category\_binary\_arithmetic\_operation\_weight} & 900 \\
+  \texttt{category\_shift\_rotate\_weight} & 100 \\
+  \texttt{category\_double\_shift\_weight} & 100 \\
+  \texttt{category\_conditional\_move\_weight} & 500 \\
+  \texttt{category\_set\_weight} & 500 \\
+  \texttt{category\_jump\_weight} & 500 \\
+  \texttt{category\_loop\_weight} & 500 \\
+  \texttt{category\_call\_weight} & 1000 \\
+  \texttt{category\_return\_weight} & 1000 \\
+  \texttt{category\_sign\_extension\_weight} & 800 \\
+  \texttt{category\_zero\_extension\_weight} & 800 \\
+  \texttt{category\_sse\_weight} & 1200 \\
+  \texttt{category\_mmx\_weight} & 1200 \\
+  \texttt{category\_system\_weight} & 1100 \\
+  \texttt{category\_nop\_weight} & 50 \\
+
+  \texttt{base\_mem\_value\_wt} & 250 \\
+  \texttt{base\_mem\_word\_width\_wt} & 100 \\
+
+  \hline \\
+\end{longtable}
