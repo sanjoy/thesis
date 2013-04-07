@@ -18,6 +18,7 @@ argument \texttt{-print\_trait\_names}.
 \end{minted}
 
 \section{Classification of parameters}
+\label{sec:parameters-desc}
 
 The above command spits out forty-five traits.  Instead of describing
 them individually, a more systematic methodology would be to partition
@@ -132,66 +133,67 @@ traits assumed.
 
   \hline \\
 
-  \texttt{imm\_operand\_cpu\_wt\_individual} & 1 \\
-  \texttt{imm\_operand\_cpu\_wt\_hamming} & 2 \\
+  imm\_operand\_cpu\_wt\_individual & 8.13 \\
+  imm\_operand\_cpu\_wt\_hamming & 4.73 \\
 
-  \texttt{reg\_cpu\_wt\_individual} & 8.13 \\
-  \texttt{reg\_cpu\_wt\_hamming} & 4.73 \\
+  reg\_cpu\_wt\_individual & 8.13 \\
+  reg\_cpu\_wt\_hamming & 4.73 \\
 
-  \texttt{reg\_value\_cpu\_wt\_individual} & 1 \\
-  \texttt{reg\_value\_cpu\_wt\_hamming} & 2 \\
+  reg\_value\_cpu\_wt\_individual & 48 \\
+  reg\_value\_cpu\_wt\_hamming & 219.9 \\
 
-  \texttt{inst\_addr\_cpu\_wt\_individual} & 48 \\
-  \texttt{inst\_addr\_cpu\_wt\_hamming} & 219.9 \\
+  inst\_addr\_cpu\_wt\_individual & 48 \\
+  inst\_addr\_cpu\_wt\_hamming & 219.9 \\
 
-  \texttt{data\_addr\_cpu\_wt\_individual} & 48 \\
-  \texttt{data\_addr\_cpu\_wt\_hamming} & 219.9 \\
+  data\_addr\_cpu\_wt\_individual & 48 \\
+  data\_addr\_cpu\_wt\_hamming & 219.9 \\
 
-  \texttt{inst\_addr\_mem\_wt\_individual} & -19.2 \\
-  \texttt{inst\_addr\_mem\_wt\_hamming} & 138.9 \\
+  inst\_addr\_mem\_wt\_individual & -19.2 \\
+  inst\_addr\_mem\_wt\_hamming & 138.9 \\
 
-  \texttt{inst\_value\_mem\_wt\_individual} & -115.3 \\
-  \texttt{inst\_value\_mem\_wt\_hamming} & 57.7 \\
+  inst\_value\_mem\_wt\_individual & -115.3 \\
+  inst\_value\_mem\_wt\_hamming & 57.7 \\
 
-  \texttt{data\_addr\_mem\_wt\_individual} & -19.2 \\
-  \texttt{data\_addr\_mem\_wt\_hamming} & 138.9 \\
+  data\_addr\_mem\_wt\_individual & -19.2 \\
+  data\_addr\_mem\_wt\_hamming & 138.9 \\
 
-  \texttt{data\_value\_cpu\_wt\_individual\_read} & 0 \\
-  \texttt{data\_value\_cpu\_wt\_individual\_write} & 0 \\
+  data\_value\_cpu\_wt\_individual\_read & 11.0 \\
+  data\_value\_cpu\_wt\_individual\_write & 26.4 \\
 
-  \texttt{data\_value\_cpu\_wt\_hamming\_read} & 0 \\
-  \texttt{data\_value\_cpu\_wt\_hamming\_write} & 0 \\
+  data\_value\_cpu\_wt\_hamming\_read & -5.5 \\
+  data\_value\_cpu\_wt\_hamming\_write & 224.1 \\
 
-  \texttt{data\_value\_mem\_wt\_individual\_read} & -115.3 \\
-  \texttt{data\_value\_mem\_wt\_individual\_write} & -60.4 \\
+  data\_value\_mem\_wt\_individual\_read & -115.3 \\
+  data\_value\_mem\_wt\_individual\_write & -60.4 \\
 
-  \texttt{data\_value\_mem\_wt\_hamming\_read} & 57.7 \\
-  \texttt{data\_value\_mem\_wt\_hamming\_write} & 22.8 \\
+  data\_value\_mem\_wt\_hamming\_read & 57.7 \\
+  data\_value\_mem\_wt\_hamming\_write & 22.8 \\
 
-  \texttt{category\_default\_weight} & 1000 \\
-  \texttt{category\_generic\_alu\_weight} & 896.87 \\
-  \texttt{category\_integer\_multiplication\_weight} & 900 \\
-  \texttt{category\_integer\_division\_weight} & 900 \\
-  \texttt{category\_float\_division\_weight} & 900 \\
-  \texttt{category\_unary\_arithmetic\_operation\_weight} & 800 \\
-  \texttt{category\_binary\_arithmetic\_operation\_weight} & 900 \\
-  \texttt{category\_shift\_rotate\_weight} & 100 \\
-  \texttt{category\_double\_shift\_weight} & 100 \\
-  \texttt{category\_conditional\_move\_weight} & 500 \\
-  \texttt{category\_set\_weight} & 500 \\
-  \texttt{category\_jump\_weight} & 500 \\
-  \texttt{category\_loop\_weight} & 500 \\
-  \texttt{category\_call\_weight} & 1000 \\
-  \texttt{category\_return\_weight} & 1000 \\
-  \texttt{category\_sign\_extension\_weight} & 800 \\
-  \texttt{category\_zero\_extension\_weight} & 800 \\
-  \texttt{category\_sse\_weight} & 1200 \\
-  \texttt{category\_mmx\_weight} & 1200 \\
-  \texttt{category\_system\_weight} & 1100 \\
-  \texttt{category\_nop\_weight} & 50 \\
+  category\_default\_weight & 0 \\
+  category\_generic\_alu\_weight & 0 \\
+  category\_integer\_multiplication\_weight & 0 \\
+  category\_integer\_division\_weight & 0 \\
+  category\_float\_division\_weight & 0 \\
+  category\_unary\_arithmetic\_operation\_weight & 0 \\
+  category\_binary\_arithmetic\_operation\_weight & 0 \\
+  category\_shift\_rotate\_weight & 0 \\
+  category\_double\_shift\_weight & 0 \\
+  category\_conditional\_move\_weight & 0 \\
+  category\_set\_weight & 0 \\
+  category\_jump\_weight & 0 \\
+  category\_loop\_weight & 0 \\
+  category\_call\_weight & 0 \\
+  category\_return\_weight & 0 \\
+  category\_sign\_extension\_weight & 0 \\
+  category\_zero\_extension\_weight & 0 \\
+  category\_sse\_weight & 0 \\
+  category\_mmx\_weight & 0 \\
+  category\_system\_weight & 0 \\
+  category\_nop\_weight & 0 \\
 
-  \texttt{base\_mem\_value\_wt} & 250 \\
-  \texttt{base\_mem\_word\_width\_wt} & 100 \\
+  base\_mem\_value\_wt & 0 \\
+  base\_mem\_word\_width\_wt & 0 \\
 
   \hline \\
+
 \end{longtable}
