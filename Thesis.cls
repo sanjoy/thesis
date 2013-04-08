@@ -236,6 +236,18 @@
   \end{center}
 }
 
+\newenvironment{acknowledgements}
+{
+  \btypeout{Acknowledgements Page}
+  \thispagestyle{empty}
+  \null\vfil
+  \begin{center}
+    \setlength{\parskip}{0pt}
+    {\huge{\textit{Acknowledgements}} \par}
+    \bigskip
+  \end{center}
+}
+
 \newenvironment{certificate}
 {
   \btypeout{Certificate Page}
@@ -343,15 +355,6 @@
           \MakeUppercase\listnomenclature}{\MakeUppercase\listnomenclature}}
 \begin{longtable}[c]{#1}#2\end{longtable}\par
     \cleardoublepage
-}
-\newcommand\acknowledgements[1]{
-\btypeout{Acknowledgements}
-\addtotoc{Acknowledgements}
-\thispagestyle{plain}
-\begin{center}{\huge{\textit{Acknowledgements}} \par}\end{center}
-{\normalsize #1}
-\vfil\vfil\null
-
 }
 \newcommand\dedicatory[1]{
 \btypeout{Dedicatory}
