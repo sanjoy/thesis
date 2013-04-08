@@ -71,10 +71,10 @@ in the above case, $E_{mem\_instr}$ and $E_{mem\_data}$ are estimated
 to be negative.  This is a consequence of the fact that we don't have
 estimates for per-instruction energy factors (and assume these to be
 zero), while we \textit{do} have negative estimates for certain other
-factors like {data\_addr\_mem\_wt\_individual}.  Unsettling as this
-may be, since the total value of $E_{mem\_instr}$ and $E_{mem\_data}$
-are algebraic additions of relevant factors, negative energy estimates
-are not an issue for comparative study.
+factors like \texttt{data\_addr\_mem\_wt\_individual}.  Unsettling as
+this may be, since the total value of $E_{mem\_instr}$ and
+$E_{mem\_data}$ are algebraic additions of relevant factors, negative
+energy estimates are not an issue for comparative study.
 
 \wattage works by registering a callback for \textit{each} instruction
 which tracks the various contributing factors mentioned in
@@ -109,8 +109,13 @@ energy consumption may differ from run to run; \textit{even} in
 exceedingly simple programs that don't have any obvious
 non-deterministic behavior.  This is due to the interaction between
 the extremely low-level instrumentation \wattage does and ASLR
-(Address Space Layout
-Randomization)\footnote{http://en.wikipedia.org/wiki/Address\_space\_layout\_randomization}.
+(Address Space Layout Randomization)\footnote{ Address space layout
+  randomization (ASLR) is a computer security method which involves
+  randomly arranging the positions of key data areas, usually
+  including the base of the executable and position of libraries,
+  heap, and stack, in a process's address space.  For more details,
+  see
+  http://en.wikipedia.org/wiki/Address\_space\_layout\_randomization}.
 
 Since the \texttt{.text} and stack pages are likely to be mapped to
 different virtual addresses each run, the instruction and emmory
@@ -127,7 +132,7 @@ measuring the energy characteristics of sample programs.
 
 In this experiment, we estimated the energy profile of four common
 sorting algorithms (the source code to which can be found in
-\refsec{AppendixB}):
+\refsec{code:sorting-benchmark}):
 
 \begin{itemize*}
 \item Bubble Sort
@@ -155,10 +160,11 @@ also the most energy efficient.  The additional energy requirement of
 merge sort can be attributed to the writes to the auxiliary array.
 Similarly the two least CPU efficient algorithms, bubble sort and
 insertion sort, are also the most energy inefficient.  The
-implementation of bubble sort used (see \refsec{AppendixB}) makes at
-least $\frac{n (n - 1)}{2}$ reads on any input and this it is slower
-than insertion sort on average input -- explaining the additional
-energy consumed by bubble sort over insertion sort.
+implementation of bubble sort used (see
+\refsec{code:sorting-benchmark}) makes at least $\frac{n (n - 1)}{2}$
+reads on any input and this it is slower than insertion sort on
+average input -- explaining the additional energy consumed by bubble
+sort over insertion sort.
 
 The above graph, however, is dominated by the asymptotic efficiency of
 the algorithm; a program that runs for a significantly longer period
