@@ -1,0 +1,8 @@
+digraph G {
+	ADD -> MULT;
+	ADD -> X;
+	MULT -> Y;
+	MULT -> 4;
+}
+
+
