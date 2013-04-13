@@ -12,7 +12,7 @@ plot "./qsort-energy-data" using 1:2:(1.0) smooth bezier                       \
 
 set output "qsort-energy-per-inst.eps"
 
-set yrange [7000:9000]
+set yrange [6000:8500]
 set ylabel "pJoules per instruction"
 
 plot "< join ./qsort-energy-data ./qsort-inst-count-data" using 1:($2/$3):(1.0) \

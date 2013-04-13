@@ -11,7 +11,7 @@ plot "./energy-vs-sort-algorithm-data" using 0:3:xtic(2) with boxes
 
 set ylabel "Energy Estimate per Instruction (in pJoule)"
 set output "energy-per-inst-vs-sort-algorithm.eps"
-set yrange [0:10000]
+set yrange [0:9000]
 plot "./energy-per-inst-vs-sort-algorithm-data" using 0:3:xtic(2) with boxes
 
 set ylabel "Fraction of Energy Spent in the Data Bus"
