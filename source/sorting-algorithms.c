@@ -7,36 +7,8 @@
 #ifdef NDEBUG
 #define PRINT_FUNCTION_NAME do {} while(0)
 #else
-#define PRINT_FUNCTION_NAME do {                \
-    printf("%s\n", __func__);                   \
-  } while(0)
-#endif
-
-#ifndef NDEBUG
-static int is_sorted(int *array, int length) {
-  if (length == 0) return 1;
-
-  for (int i = 1; i < length; i++) {
-    if (array[i - 1] > array[i]) return 0;
-  }
-
-  return 1;
-}
+#define PRINT_FUNCTION_NAME printf("%s\n", __func__)
 #endif /* NDEBUG */
-
-#ifdef PRINT_TIME
-inline uint64_t __attribute__((always_inline)) rdtsc(void) {
-  uint32_t lo, hi;
-  __asm__ __volatile__ (
-      "xorl %%eax, %%eax\n"
-      "cpuid\n"
-      "rdtsc\n"
-      : "=a" (lo), "=d" (hi)
-      :
-      : "%ebx", "%ecx" );
-  return (uint64_t)hi << 32 | lo;
-}
-#endif /* PRINT_TIME */
 
 #define swap(a, b) do {                         \
     int temp = (a); (a) = (b); (b) = temp;      \
@@ -130,6 +102,32 @@ static void merge_sort(int *array, int length) {
 
   free(temporary);
 }
+
+#ifndef NDEBUG
+static int is_sorted(int *array, int length) {
+  if (length == 0) return 1;
+
+  for (int i = 1; i < length; i++) {
+    if (array[i - 1] > array[i]) return 0;
+  }
+
+  return 1;
+}
+#endif /* NDEBUG */
+
+#ifdef PRINT_TIME
+inline uint64_t __attribute__((always_inline)) rdtsc(void) {
+  uint32_t lo, hi;
+  __asm__ __volatile__ (
+      "xorl %%eax, %%eax\n"
+      "cpuid\n"
+      "rdtsc\n"
+      : "=a" (lo), "=d" (hi)
+      :
+      : "%ebx", "%ecx" );
+  return (uint64_t)hi << 32 | lo;
+}
+#endif /* PRINT_TIME */
 
 static void show_usage(const char *program_name) {
   printf("usage: %s [--bubble-sort | --insertion-sort | --quick-sort\n"
