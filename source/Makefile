@@ -9,9 +9,9 @@ TARGETS=$(patsubst %.cpp, %-energyopt, $(SOURCES))     \
 all:: check-llvm-config $(TARGETS)
 
 clean::
-	rm $(TARGETS)
-	rm *.s
-	rm numbers.inc
+	rm -f *.s
+	rm -f $(TARGETS)
+	rm -f numbers.inc
 
 LLVM_ROOT=$(shell $(llvm_config) --obj-root)
 LLVM_OPT=$(LLVM_ROOT)/bin/opt
