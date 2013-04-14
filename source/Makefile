@@ -1,9 +1,11 @@
 HEADERS=$(wildcard *.h *.hpp) numbers.inc
 SOURCES=$(wildcard *.cpp)
 
-TARGETS=$(patsubst %.cpp, %-energyopt, $(SOURCES))     \
-	$(patsubst %.cpp, %-normalopt, $(SOURCES))    \
-	$(patsubst %.cpp, %-stock, $(SOURCES))        \
+TARGETS=$(patsubst %.cpp, %-energyopt, $(SOURCES))         \
+	$(patsubst %.cpp, %-normalopt, $(SOURCES))         \
+	$(patsubst %.cpp, %-timed-energyopt, $(SOURCES))   \
+	$(patsubst %.cpp, %-timed-normalopt, $(SOURCES))   \
+	$(patsubst %.cpp, %-stock, $(SOURCES))             \
 	$(patsubst %.cpp, %-stock-debug, $(SOURCES))
 
 all:: check-llvm-config $(TARGETS)
@@ -30,13 +32,16 @@ endif
 numbers.inc:
 	runhaskell Random.hs 1000 2000 > $@
 
-%-energyopt: %-opt.ll
-	$(LLVM_LLC) $(COMMON_LLC_ARGS) $(ENERGY_LLC_ARGS) $< -o $@.s
-	g++ $@.s -lm -o $@
+time-measure.o: time-measure.cc
+	clang++ -c $< -o $@
 
-%-normalopt: %-opt.ll
+%-energyopt: %-opt.ll time-measure.o
+	$(LLVM_LLC) $(COMMON_LLC_ARGS) $(ENERGY_LLC_ARGS) $< -o $@.s
+	g++ $@.s -lm time-measure.o -o $@
+
+%-normalopt: %-opt.ll time-measure.o
 	$(LLVM_LLC) $(COMMON_LLC_ARGS) $< -o $@.s
-	g++ $@.s -lm -o $@
+	g++ $@.s -lm time-measure.o -o $@
 
 %-opt.ll: %-opt.bc
 	$(LLVM_DIS) $< -o $@
@@ -44,8 +49,11 @@ numbers.inc:
 %-opt.bc: %.ll
 	$(LLVM_OPT) -O3 $< -o $@
 
-%.ll: %.cpp numbers.inc $(HEADERS)
-	clang++  $(CXX_FLAGS) -emit-llvm -S -o $@ $<
+%-timed.ll: %.cpp $(HEADERS)
+	clang++ $(CXX_FLAGS) -DNDEBUG -DMEASURE_TIME -emit-llvm -S -o $@ $<
+
+%.ll: %.cpp $(HEADERS)
+	clang++  $(CXX_FLAGS) -DNDEBUG -emit-llvm -S -o $@ $<
 
 %-stock: %.cpp $(HEADERS)
 	clang++ $(CXX_FLAGS) -O3 -DNDEBUG -lm $< -o $@
