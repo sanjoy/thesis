@@ -1,0 +1,17 @@
+*.aux
+*.lof
+*.log
+*.lot
+*.out
+*.pdf
+*.toc
+*.bbl
+*.blg
+*.eps
+*-data
+source/*.s
+source/*.ll
+source/*.bc
+source/*opt
+source/*stock*
+source/numbers.inc
