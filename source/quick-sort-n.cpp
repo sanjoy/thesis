@@ -1,5 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <algorithm>
+#include <cstdio>
+#include <cstdlib>
+
+using namespace std;
 
 static int partition(int *array, int left, int right) {
   int pivot = array[left];
@@ -15,16 +18,10 @@ static int partition(int *array, int left, int right) {
     } while(array[j] > pivot);
 
     if( i >= j ) break;
-
-    int temp = array[i];
-    array[i] = array[j];
-    array[j] = temp;
+    swap(array[i], array[j]);
   }
 
-  int temp = array[left];
-  array[left] = array[j];
-  array[j] = temp;
-
+  swap(array[left], array[j]);
   return j;
 }
 

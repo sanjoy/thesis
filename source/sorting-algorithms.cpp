@@ -1,18 +1,17 @@
-#include <assert.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <algorithm>
+#include <cassert>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 #include <stdint.h>
+
+using namespace std;
 
 #ifdef NDEBUG
 #define PRINT_FUNCTION_NAME do {} while(0)
 #else
 #define PRINT_FUNCTION_NAME printf("%s\n", __func__)
 #endif /* NDEBUG */
-
-#define swap(a, b) do {                         \
-    int temp = (a); (a) = (b); (b) = temp;      \
-  } while(0)
 
 static void bubble_sort(int *array, int length) {
   PRINT_FUNCTION_NAME;
@@ -95,12 +94,12 @@ static void merge_sort_recursive(int *array, int *buffer, const int length) {
 static void merge_sort(int *array, int length) {
   PRINT_FUNCTION_NAME;
 
-  int *temporary = malloc(sizeof(int) * length);
+  int *temporary = new int[length];
   assert(temporary && "malloc failed");
 
   merge_sort_recursive(array, temporary, length);
 
-  free(temporary);
+  delete[] temporary;
 }
 
 #ifndef NDEBUG
