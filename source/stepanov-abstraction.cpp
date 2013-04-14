@@ -38,6 +38,8 @@ History:
 #include "benchmark-timer.h"
 #include "benchmark-algorithms.h"
 
+#include "time-measure.hpp"
+
 /******************************************************************************/
 
 // a value wrapped in a struct, recursively
@@ -394,3 +396,5 @@ int main(int argc, char** argv) {
 // the end
 /******************************************************************************/
 /******************************************************************************/
+
+TimeMeasure __measure_time;

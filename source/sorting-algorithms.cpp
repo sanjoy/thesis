@@ -5,6 +5,8 @@
 #include <cstring>
 #include <stdint.h>
 
+#include "time-measure.hpp"
+
 using namespace std;
 
 #ifdef NDEBUG
@@ -114,20 +116,6 @@ static int is_sorted(int *array, int length) {
 }
 #endif /* NDEBUG */
 
-#ifdef PRINT_TIME
-inline uint64_t __attribute__((always_inline)) rdtsc(void) {
-  uint32_t lo, hi;
-  __asm__ __volatile__ (
-      "xorl %%eax, %%eax\n"
-      "cpuid\n"
-      "rdtsc\n"
-      : "=a" (lo), "=d" (hi)
-      :
-      : "%ebx", "%ecx" );
-  return (uint64_t)hi << 32 | lo;
-}
-#endif /* PRINT_TIME */
-
 static void show_usage(const char *program_name) {
   printf("usage: %s [--bubble-sort | --insertion-sort | --quick-sort\n"
          "          |--merge-sort ]\n", program_name);
@@ -168,18 +156,10 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-#ifdef PRINT_TIME
-  {
-    uint64_t begin = rdtsc();
-#endif
-
-    sort_function(array, length);
-
-#ifdef PRINT_TIME
-    printf("time = %ld\n", (long) (rdtsc() - begin));
-  }
-#endif
+  sort_function(array, length);
 
   assert(is_sorted(array, length) && "array not sorted");
   return 0;
 }
+
+TimeMeasure __measure_time;

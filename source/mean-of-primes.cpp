@@ -1,5 +1,7 @@
 #include <cstdio>
 
+#include "time-measure.hpp"
+
 using namespace std;
 
 int numbers[] = {
@@ -32,3 +34,5 @@ int main(void) {
   printf("%lf\n", prime_mean(numbers, sizeof(numbers) / sizeof(numbers[0])));
   return 0;
 }
+
+TimeMeasure __measure_time;

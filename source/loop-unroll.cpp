@@ -38,6 +38,8 @@
 #include "benchmark-results.h"
 #include "benchmark-timer.h"
 
+#include "time-measure.hpp"
+
 #ifndef PRINTF
 #ifdef NDEBUG
 #define PRINTF(...) do {} while(0)
@@ -363,3 +365,5 @@ int main(int argc, char** argv) {
 // the end
 /******************************************************************************/
 /******************************************************************************/
+
+TimeMeasure __measure_time;
