@@ -15,6 +15,16 @@
 
 /* declarations */
 
+#ifndef PRINTF
+#ifdef NDEBUG
+#define PRINTF(...) do {} while(0)
+#define FPRINTF(...) do {} while(0)
+#else
+#define PRINTF(...) fprintf(stderr, __VA_ARGS__)
+#define FPRINTF fprintf
+#endif
+#endif
+
 typedef struct one_result {
 	double time;
 	const char *label;
@@ -78,6 +88,7 @@ parse as:
 void summarize(const char *name, int size, int iterations, int show_gmeans, int show_penalty ) {
 	int i;
 	double millions = ((double)(size) * iterations)/1000000.0;
+        (void) millions;
 	double total_absolute_times = 0.0;
 	double gmean_ratio = 0.0;
 	
@@ -91,11 +102,11 @@ void summarize(const char *name, int size, int iterations, int show_gmeans, int 
 			longest_label_len = len;
 	}
 
-	printf("\ntest %*s description   absolute   operations   ratio with\n", longest_label_len-12, " ");
-	printf("number %*s time       per second   test0\n\n", longest_label_len, " ");
+	PRINTF("\ntest %*s description   absolute   operations   ratio with\n", longest_label_len-12, " ");
+	PRINTF("number %*s time       per second   test0\n\n", longest_label_len, " ");
 
 	for (i = 0; i < current_test; ++i)
-		printf("%2i %*s\"%s\"  %5.2f sec   %5.2f M     %.2f\n",
+		PRINTF("%2i %*s\"%s\"  %5.2f sec   %5.2f M     %.2f\n",
 				i,
 				(int)(longest_label_len - strlen(results[i].label)),
 				"",
@@ -110,7 +121,7 @@ void summarize(const char *name, int size, int iterations, int show_gmeans, int 
 	}
 
 	// report total time
-	printf("\nTotal absolute time for %s: %.2f sec\n", name, total_absolute_times);
+	PRINTF("\nTotal absolute time for %s: %.2f sec\n", name, total_absolute_times);
 
 	if ( current_test > 1 && show_penalty ) {
 	
@@ -120,7 +131,7 @@ void summarize(const char *name, int size, int iterations, int show_gmeans, int 
 		}
 		
 		// report gmean of tests as the penalty
-		printf("\n%s Penalty: %.2f\n\n", name, exp(gmean_ratio/(current_test-1)));
+		PRINTF("\n%s Penalty: %.2f\n\n", name, exp(gmean_ratio/(current_test-1)));
 	}
 
 	// reset the test counter so we can run more tests
@@ -142,11 +153,11 @@ void summarize_simplef( FILE *output, const char *name ) {
 			longest_label_len = len;
 	}
 
-	fprintf(output,"\ntest %*s description   absolute\n", longest_label_len-12, " ");
-	fprintf(output,"number %*s time\n\n", longest_label_len, " ");
+	FPRINTF(output,"\ntest %*s description   absolute\n", longest_label_len-12, " ");
+	FPRINTF(output,"number %*s time\n\n", longest_label_len, " ");
 
 	for (i = 0; i < current_test; ++i)
-		fprintf(output,"%2i %*s\"%s\"  %5.2f sec\n",
+		FPRINTF(output,"%2i %*s\"%s\"  %5.2f sec\n",
 				i,
 				(int)(longest_label_len - strlen(results[i].label)),
 				"",
@@ -159,7 +170,7 @@ void summarize_simplef( FILE *output, const char *name ) {
 	}
 
 	// report total time
-	fprintf(output,"\nTotal absolute time for %s: %.2f sec\n", name, total_absolute_times);
+	FPRINTF(output,"\nTotal absolute time for %s: %.2f sec\n", name, total_absolute_times);
 
 	// reset the test counter so we can run more tests
 	current_test = 0;

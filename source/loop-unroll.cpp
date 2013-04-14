@@ -38,6 +38,14 @@
 #include "benchmark-results.h"
 #include "benchmark-timer.h"
 
+#ifndef PRINTF
+#ifdef NDEBUG
+#define PRINTF(...) do {} while(0)
+#else
+#define PRINTF(...) fprintf(stderr, __VA_ARGS__)
+#endif
+#endif
+
 /******************************************************************************/
 
 // this constant may need to be adjusted to give reasonable minimum times
@@ -68,7 +76,7 @@ T complete_hash_func(T seed) {
 template <typename T>
 inline void check_sum(T result) {
   T temp = (T)SIZE * complete_hash_func( (T)init_value );
-  if (!tolerance_equal<T>(result,temp)) printf("test %i failed\n", current_test);
+  if (!tolerance_equal<T>(result,temp)) PRINTF("test %i failed\n", current_test);
 }
 
 /******************************************************************************/
@@ -308,8 +316,8 @@ int main(int argc, char** argv) {
 	// output command for documentation:
 	int i;
 	for (i = 0; i < argc; ++i)
-		printf("%s ", argv[i] );
-	printf("\n");
+		PRINTF("%s ", argv[i] );
+	PRINTF("\n");
 
 	if (argc > 1) iterations = atoi(argv[1]);
 	if (argc > 2) init_value = (double) atof(argv[2]);
