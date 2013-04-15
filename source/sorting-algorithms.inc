@@ -1,38 +1,27 @@
+#ifndef __SORTING_ALGORITHMS__INC
+#define __SORTING_ALGORITHMS__INC
+
 #include <algorithm>
 #include <cassert>
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
-#include <stdint.h>
 
 #include "time-measure.hpp"
 
-using namespace std;
+#define MAYBE_UNUSED __attribute__((unused))
 
-#ifdef NDEBUG
-#define PRINT_FUNCTION_NAME do {} while(0)
-#else
-#define PRINT_FUNCTION_NAME printf("%s\n", __func__)
-#endif /* NDEBUG */
-
-static void bubble_sort(int *array, int length) {
-  PRINT_FUNCTION_NAME;
-
+static void MAYBE_UNUSED bubble_sort(int *array, int length) {
   for (int i = length; i > 0; i--) {
     for (int j = 1; j < i; j++) {
-      if (array[j - 1] > array[j]) swap(array[j - 1], array[j]);
+      if (array[j - 1] > array[j]) std::swap(array[j - 1], array[j]);
     }
   }
 }
 
-static void insertion_sort(int *array, int length) {
-  PRINT_FUNCTION_NAME;
-
+static void MAYBE_UNUSED insertion_sort(int *array, int length) {
   for (int i = 1; i < length; i++) {
     int index = i;
 
     while (index > 0 && array[index] < array[index - 1]) {
-      swap(array[index], array[index - 1]);
+      std::swap(array[index], array[index - 1]);
       index--;
     }
   }
@@ -41,16 +30,16 @@ static void insertion_sort(int *array, int length) {
 static int partition(int *array, const int length) {
   /* lifted from http://en.wikipedia.org/wiki/Quicksort */
   const int pivot_value = *array;
-  swap(*array, array[length - 1]);
+  std::swap(*array, array[length - 1]);
   int store_index = 0;
 
   for (int i = 0; i < (length - 1); i++) {
     if (array[i] <= pivot_value) {
-      swap(array[i], array[store_index]);
+      std::swap(array[i], array[store_index]);
       store_index++;
     }
   }
-  swap(array[store_index], array[length - 1]);
+  std::swap(array[store_index], array[length - 1]);
   return store_index;
 }
 
@@ -62,8 +51,7 @@ static void quick_sort_recursive(int *array, const int length) {
   }
 }
 
-static void quick_sort(int *array, int length) {
-  PRINT_FUNCTION_NAME;
+static void MAYBE_UNUSED quick_sort(int *array, int length) {
   quick_sort_recursive(array, length);
 }
 
@@ -79,7 +67,7 @@ static void merge(int *array, int *buffer, int midpoint, int length) {
   while (begin_a < midpoint) *buffer++ = array[begin_a++];
   while (begin_b < length) *buffer++ = array[begin_b++];
 
-  memcpy(array, original_buffer, sizeof(int) * length);
+  std::copy(original_buffer, original_buffer + length, array);
 }
 
 static void merge_sort_recursive(int *array, int *buffer, const int length) {
@@ -93,14 +81,9 @@ static void merge_sort_recursive(int *array, int *buffer, const int length) {
   }
 }
 
-static void merge_sort(int *array, int length) {
-  PRINT_FUNCTION_NAME;
-
+static void MAYBE_UNUSED merge_sort(int *array, int length) {
   int *temporary = new int[length];
-  assert(temporary && "malloc failed");
-
   merge_sort_recursive(array, temporary, length);
-
   delete[] temporary;
 }
 
@@ -116,24 +99,14 @@ static int is_sorted(int *array, int length) {
 }
 #endif /* NDEBUG */
 
-static void show_usage(const char *program_name) {
-  printf("usage: %s [--bubble-sort | --insertion-sort | --quick-sort\n"
-         "          |--merge-sort ]\n", program_name);
-}
-
-int main(int argc, char **argv) {
-  if (argc != 2) {
-    show_usage(argv[0]);
-    return 1;
-  }
-
+static void sort_using(void (*sort_fn) (int *, int)) {
   int array_values[] = {
 #include "numbers.inc"
   };
   int length = sizeof(array_values) / sizeof(array_values[0]);
 
 #ifdef USE_MALLOC
-  int *array = malloc(sizeof(int) * length);
+  int *array = new int[length];
   for (int i = 0; i < length; i++) {
     array[i] = array_values[i];
   }
@@ -141,25 +114,20 @@ int main(int argc, char **argv) {
   int *array = array_values;
 #endif /* USE_MALLOC */
 
-  void (*sort_function) (int *, int);
+  sort_fn(array, length);
+  assert(is_sorted(array, length) && "sorting is broken!");
 
-  if (strcmp(argv[1], "--bubble-sort") == 0) {
-    sort_function = bubble_sort;
-  } else if (strcmp(argv[1], "--insertion-sort") == 0) {
-    sort_function = insertion_sort;
-  } else if (strcmp(argv[1], "--quick-sort") == 0) {
-    sort_function = quick_sort;
-  } else if (strcmp(argv[1], "--merge-sort") == 0) {
-    sort_function = merge_sort;
-  } else {
-    show_usage(argv[0]);
-    return 1;
-  }
-
-  sort_function(array, length);
-
-  assert(is_sorted(array, length) && "array not sorted");
-  return 0;
+#ifdef USE_MALLOC
+  delete [] array;
+#endif
 }
 
-TimeMeasure __measure_time;
+#define GENERATE_BODY(sort_type)                \
+  int main() {                                  \
+    TimeMeasure measure_time;                   \
+    (void) measure_time;                        \
+    sort_using(sort_type ## _sort);             \
+    return 0;                                   \
+  }
+
+#endif // __SORTING_ALGORITHMS__INC
