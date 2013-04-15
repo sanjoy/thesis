@@ -15,3 +15,4 @@ source/*.bc
 source/*opt
 source/*stock*
 source/numbers.inc
+source/profiles/*-total
