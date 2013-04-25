@@ -1,0 +1,45 @@
+\chapter{Conclusions and Discussion}
+
+\label{Chapter4}
+
+\lhead{Chapter 4. \emph{Conclusions and Discussion}}
+
+We started out with the goal of meaningfully understanding the energy
+profile of software programs.  We saw in Chapter~\ref{Chapter2} that
+an algorithmic feature that influences the energy profile of a program
+is its data access patterns.  One can hope to reduce to see lower
+energy consumption by making memory access as sequential as possible;
+which gives us 2 bit flips in the memory address bus per fetch /
+write, very close to the optimal value of 1.
+
+We saw a limited amount of success in modifying llvm's instruction
+scheduler to reduce the energy footprint of compiled binaries in
+Chapter~\ref{Chapter3}.  While we don't think optimizing for energy
+efficiency can be modelled as a vanilla data-flow problem; we think
+there might be scope for dataflow \textit{analyses} that allow for
+more intensive energy optimizations to take place later in the
+compiler toolchain.  Returning to a brief version of an earlier
+example, a compiler can usually not see that
+
+\begin{gascode}
+  movq    (%rdi),   %rax
+  addq    8(%rdi),  %rax
+  addq    24(%rdi), %rax
+  addq    16(%rdi), %rax
+\end{gascode}
+
+and
+
+\begin{gascode}
+  movq    (%rdi),   %rax
+  addq    8(%rdi),  %rax
+  addq    16(%rdi), %rax
+  addq    24(%rdi), %rax
+\end{gascode}
+
+are equivalent since it infers an output dependency on \texttt{\%rax}.
+Ideally, though, a compiler should be able to use the commutativity of
+addition and infer the equivalence of the last three instructions.
+The energy aware scheduler should then be able to schedule the
+instructions in the order of the first version; and incur lower
+switching costs.
