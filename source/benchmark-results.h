@@ -15,15 +15,7 @@
 
 /* declarations */
 
-#ifndef PRINTF
-#ifdef NDEBUG
-#define PRINTF(...) do {} while(0)
-#define FPRINTF(...) do {} while(0)
-#else
-#define PRINTF(...) fprintf(stderr, __VA_ARGS__)
-#define FPRINTF fprintf
-#endif
-#endif
+#include "debug-output.hpp"
 
 typedef struct one_result {
 	double time;

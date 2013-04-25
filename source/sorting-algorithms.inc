@@ -4,6 +4,10 @@
 #include <algorithm>
 #include <cassert>
 
+#include <unistd.h>
+#include <sys/mman.h>
+
+#include "debug-output.hpp"
 #include "time-measure.hpp"
 
 #define MAYBE_UNUSED __attribute__((unused))
@@ -87,7 +91,10 @@ static void MAYBE_UNUSED merge_sort(int *array, int length) {
   delete[] temporary;
 }
 
-#ifndef NDEBUG
+static void MAYBE_UNUSED std_sort(int *array, int length) {
+  std::sort(array, array + length);
+}
+
 static int is_sorted(int *array, int length) {
   if (length == 0) return 1;
 
@@ -97,7 +104,44 @@ static int is_sorted(int *array, int length) {
 
   return 1;
 }
-#endif /* NDEBUG */
+
+#ifdef USE_MALLOC
+
+static int *allocate_pages(int length) {
+  const int psize = getpagesize();
+  const int size = length * sizeof(int);
+  const int pages = (size + psize - 1) / psize;
+
+  void *hint = reinterpret_cast<void*>(static_cast<intptr_t>(0xa00000));
+
+  PRINTF("allocated %d pages (total size = %d)\n", pages, pages * psize);
+  void *memory =
+      mmap(hint, pages * psize, PROT_READ | PROT_WRITE,
+           MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+  if (memory == MAP_FAILED) {
+    perror("allocate_pages");
+    abort();
+  }
+  if (memory != hint) {
+    fprintf(stderr, "could not allocate memory at hint\n");
+    abort();
+  }
+  return reinterpret_cast<int *>(memory);
+}
+
+static void free_pages(int *buffer, int length) {
+  const int psize = getpagesize();
+  const int size = length * sizeof(int);
+  const int pages = (size + psize - 1) / psize;
+
+  int result = munmap(buffer, pages * psize);
+  if (result == -1) {
+    perror("free_pages");
+    abort();
+  }
+}
+
+#endif // USE_MALLOC
 
 static void sort_using(void (*sort_fn) (int *, int)) {
   int array_values[] = {
@@ -106,7 +150,8 @@ static void sort_using(void (*sort_fn) (int *, int)) {
   int length = sizeof(array_values) / sizeof(array_values[0]);
 
 #ifdef USE_MALLOC
-  int *array = new int[length];
+  int *array = allocate_pages(length);
+  PRINTF("allocated array %p\n", array);
   for (int i = 0; i < length; i++) {
     array[i] = array_values[i];
   }
@@ -115,10 +160,13 @@ static void sort_using(void (*sort_fn) (int *, int)) {
 #endif /* USE_MALLOC */
 
   sort_fn(array, length);
-  assert(is_sorted(array, length) && "sorting is broken!");
+  if (!is_sorted(array, length)) {
+    fprintf(stderr, "sorting is broken!");
+    abort();
+  }
 
 #ifdef USE_MALLOC
-  delete [] array;
+  free_pages(array, length);
 #endif
 }
 

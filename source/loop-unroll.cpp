@@ -38,15 +38,8 @@
 #include "benchmark-results.h"
 #include "benchmark-timer.h"
 
+#include "debug-output.hpp"
 #include "time-measure.hpp"
-
-#ifndef PRINTF
-#ifdef NDEBUG
-#define PRINTF(...) do {} while(0)
-#else
-#define PRINTF(...) fprintf(stderr, __VA_ARGS__)
-#endif
-#endif
 
 /******************************************************************************/
 
@@ -320,6 +313,8 @@ int main(int argc, char** argv) {
 	for (i = 0; i < argc; ++i)
 		PRINTF("%s ", argv[i] );
 	PRINTF("\n");
+
+        PRINTF("dataDouble = %p, data32 = %p\n", &dataDouble, &data32);
 
 	if (argc > 1) iterations = atoi(argv[1]);
 	if (argc > 2) init_value = (double) atof(argv[2]);

@@ -22,16 +22,11 @@
 #include <vector>
 #include <algorithm>
 
+#include "debug-output.hpp"
 #include "time-measure.hpp"
 
 const int kIterations = 1;
 const int kDummyLoopCount = 50;
-
-#ifdef NDEBUG
-#define PRINTF(...) do {} while(0)
-#else
-#define PRINTF(...) fprintf(stderr, __VA_ARGS__)
-#endif
 
 // Forward Decls
 class BasicBlock;

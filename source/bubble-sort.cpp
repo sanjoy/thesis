@@ -1,3 +1,3 @@
 #include "sorting-algorithms.inc"
 
-GENERATE_BODY(merge);
+GENERATE_BODY(bubble);

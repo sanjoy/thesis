@@ -24,10 +24,13 @@ for i in $(seq 1 $ITERATIONS); do
     echo "Running $BASE-normalopt $i"
     $HARNESS ./$BASE-normalopt $*
     cat output.out | tail -n 1 | awk '{ print $3 }' >> profiles/$BASE-normalopt-total
+    mv -f output.out normal.out
 
     echo "Running $BASE-energyopt $i"
     $HARNESS ./$BASE-energyopt $*
     cat output.out | tail -n 1 | awk '{ print $3 }' >> profiles/$BASE-energyopt-total
-done
+    mv -f output.out energy.out
 
-rm output.out
+    echo "Cooldown for two seconds ... "
+    sleep 2
+done
