@@ -142,9 +142,14 @@ sorting algorithms (the source code to which can be found in
 \item Merge Sort
 \end{itemize*}
 
+\subsubsection{The Experiment Setup}
+
 These sort algorithms were run on a pseudo-randomly generated (at
 compile-time) array of a thousand integers and the energy estimates
-were averaged over twenty runs.
+were averaged over twenty runs.  The programs were compiled with GCC
+4.7.2 with at the \texttt{-O3} optimization level.
+
+\subsubsection{Results}
 
 \begin{figure}[htbp]
   \centering
@@ -206,6 +211,8 @@ $\phi$ plotted in \reffig{fig:energy-per-inst-nomem-sort-algo}.
   \label{fig:energy-per-inst-nomem-sort-algo}
 \end{figure}
 
+\subsubsection{Analysis}
+
 Since the set of addresses accessed by each algorithm is the same, the
 differences between $\phi$ for different algorithms should be
 explainable with switching costs alone.  Partitioning in quick sort
@@ -226,9 +233,18 @@ less \textit{total} energy, as seen in
 \subsection{Energy Characteristics of the Quick Sort Algorithm}
 
 As a second experiment, we plotted the energy consumed to run the
-quick sort algorithm with the size of the input array.  The total
-energy consumed (\reffig{fig:qsort-energy-per-array-length}) is
-dominated by quick sort's CPU time, as expected.
+quick sort algorithm with the size of the input array.
+
+\subsubsection{The Experiment Setup}
+
+The quick sort algorithm was run over a randomly generated (at compile
+time) array of integers; starting at length 10 and increasing up to
+1000 in increments of 10.
+
+\subsubsection{Results}
+
+The total energy consumed (\reffig{fig:qsort-energy-per-array-length})
+is dominated by quick sort's CPU time, as expected.
 
 \begin{figure}[hp]
   \centering
