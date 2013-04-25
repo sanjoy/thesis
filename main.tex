@@ -4,6 +4,8 @@
 \usepackage{minted}
 \usepackage{mdwlist}
 \usepackage{longtable}
+\usepackage{stmaryrd}
+\everymath=\expandafter{\the\everymath\displaystyle}
 \hypersetup{urlcolor=black, colorlinks=false}
 \title{\ttitle}
 
@@ -27,6 +29,7 @@
 \newcommand{\refsec}[1]{section~\ref{#1} (page~\pageref{#1})\xspace}
 \newcommand{\reffig}[1]{figure~\ref{#1} (page~\pageref{#1})\xspace}
 \newcommand{\reftab}[1]{table~\ref{#1} (page~\pageref{#1})\xspace}
+\newcommand{\sembrack}[1]{\llbracket #1 \rrbracket \xspace}
 \newminted{c}{linenos, frame=lines, baselinestretch=1}
 \newminted{gas}{linenos, frame=lines, baselinestretch=1}
 \newminted{llvm}{linenos, frame=lines, baselinestretch=1}

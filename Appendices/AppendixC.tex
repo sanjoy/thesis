@@ -1,31 +1,93 @@
-\chapter{Proofs}
+\chapter{Integer addition and bit flips}
 
 \label{AppendixC}
 
-\lhead{Appendix C. \emph{Proofs}}
+\lhead{Appendix C. \emph{Integer addition and bit flips}}
 
-\section{Incrementing an integer incurs an average of $\approx$ 2 bit flips}
-\label{proof:average-2-flips}
+The hamming distance between an integer and the integer incremented by
+some amount is an important factor since it determines the switching
+costs associated with a program accessing array elements.  Here we
+show that adding integers $A$ and $B$ incurs a $\frac{min(W_a,
+  W_b)}{2} + 1$ bit \textit{flips} on an average, where $W_x$ is the
+width of $x$ in bits.  As an example, adding $A = 01101b$ to $B =
+10001b$ \textit{flips} the most and the least significant bits of $A$,
+making the hamming distance between $A$ and $A + B$ equal to 2.
 
-Let $F_k$ be the total number of bit flips encountered when
-incrementing 0 to $2^k - 1$ in steps of 1.  For instance, $F_2$ is 4
-since we encounter 1 bit flip going from 00 to 01, 2 when going from
-01 to 10 and 1 more when going from 10 to 11.
+Let $A$ and $B$ be two machine integers with $W_a$ the width of $A$ in
+bits and $W_b$ the width of $B$ in bits and let $N = min(W_a, W_b)$.
+Let $P_c(n)$ be the probability of an a carry bit from adding the bits
+at location $n$ (including a previous carry bit, if any).  Without
+loss of generality, we assume $W_A \geq W_b$.  Let $P_f(n)$ be the
+probability of the $n^{th}$ bit flipping in $A$ after the addition.
 
-Since going from 0 to $2^k - 1$ involves going from 0 to $2^{k - 1} -
-1$ \textit{twice} in the lower $k - 1$ bits and doing one $k$ bit flip
-when going from $2^{k - 1} - 1$ to $2^{k - 1}$
+By considering all the eight possibilities, it can be seen that when
+$n < N$
 
-
-\begin{equation} \label{eq:recurrence}
-  F_k = 2 \times F_{k - 1} + k
+\begin{equation}
+    P_f(n) = \frac{P_c(n - 1)}{2} + \frac{1 - P_c(n - 1)}{2} =
+    \frac{1}{2}
 \end{equation}
 
-Solving the recurrence \ref{eq:recurrence} gives us
+To calculate $P_f(n)$ for $n \geq N$, we first calculate $P_c(n)$ for
+$n \geq N$.  Letting $C_i$ denote the $i^{th}$ carry bit, we observe
 
-\begin{equation} \label{eq:solved}
-  F_k = 2^{k + 1} - (k + 2)
+\begin{equation}
+  P_c(N - 1) = Pr[C_{N - 1} = 1] = Pr[A\sembrack{N} + B\sembrack{N} >
+    2^N - 1]
 \end{equation}
 
-The average number of bit flips when incrementing a $k$-bit integer is
-therefore $\frac{F_k}{2^k} \approx 2$
+where $X\sembrack{Y}$ is the integer we get considering only the
+lowest $Y$ bits of $X$.
+
+Conditioning on $B\sembrack{N}$
+
+\begin{eqnarray*}
+  P_c(N) & = & \displaystyle\sum\limits_{k=0}^{2^{N} - 1}
+  Pr[A\sembrack{N} > 2^N - k \mid B\sembrack{N} = k] Pr[B\sembrack{N} = k] \\
+  & = & \displaystyle\sum\limits_{k=0}^{2^{N} - 1} \frac{k}{(2^N - 1)^2} \\
+  & \approx & \frac{1}{2}
+\end{eqnarray*}
+
+We observe that $P_f(n) = P_C(n - 1)$ for $n \geq N$, since $B$ does
+not contribute anything to the $N^{th}$ bit and above.  Moreover,
+inductively
+
+\begin{eqnarray*}
+  P_c(N + t) & = &
+  \begin{cases}
+    \frac{1}{2} & t = 0 \\
+    \\
+    \frac{P_c(N + t - 1)}{2} & t > 0
+  \end{cases} \\
+  & = & \frac{1}{2^t}
+\end{eqnarray*}
+
+Thus, the expected hamming distance between $A$ and $A + B$ is
+
+\begin{equation}
+  E[Hamming(A, A + B)] = \displaystyle\sum\limits_{k=0}^{N - 1} \frac{1}{2} + 
+  \displaystyle\sum\limits_{k=N}^{W_A} \frac{1}{2^{k - N}} + 
+\end{equation}
+
+When $W_A \gg W_b$, 
+
+\begin{equation}
+  \displaystyle\sum\limits_{k=N}^{W_A} \frac{1}{2^{k - N}} = 
+  \displaystyle\sum\limits_{k=W_B}^{W_A} \frac{1}{2^{k - W_B}} \approx
+  \displaystyle\sum\limits_{k=0}^{\infty} \frac{1}{2^k} = 1
+\end{equation}
+
+making
+
+\begin{equation}
+  E[Hamming(A, A + B)] \approx \frac{N}{2} + 1 = 
+  \frac{min(W_a, W_b)}{2} + 1
+\end{equation}
+
+For an increment by 1, we have $W_B = 1$ and $W_A$ equal to the
+machine integer width.  Thus, we have
+
+\begin{equation}
+  \label{proof:average-2-flips}
+  E[Hamming(A, A + 1)] \approx \frac{1}{2} + 1 = \frac{3}{2}
+\end{equation}

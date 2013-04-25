@@ -217,18 +217,19 @@ Since the set of addresses accessed by each algorithm is the same, the
 differences between $\phi$ for different algorithms should be
 explainable with switching costs alone.  Partitioning in quick sort
 and merging in merge sort both exhibit linear memory access behavior,
-and consecutive addresses have a hamming distance of 2\footnote{For a
-  proof, see \refsec{proof:average-2-flips}.}.  Both insertion sort
-and bubble sort exhibit more haphazard memory access behaviour and
-this pushes up the average switching cost from that in quick sort and
-merge sort.  A plausible reason for insertion sort incurring higher
-switching costs than bubble sort is the bubble sort algorithm spends
-most of its time in linearly traversing through the input array.
-Insertion sort, in the average case, incurs more \textit{jumps} than
-bubble sort; bumping up this average hamming distance.  These jumps
-allow insertion sort to finish earlier than bubble-sort (and consume
-less \textit{total} energy, as seen in
-\reffig{fig:total-energy-sort-algo}).
+and consecutive addresses have a hamming distance of
+$\frac{3}{2}$\footnote{For a proof, see
+  \refsec{proof:average-2-flips}.}.  Both insertion sort and bubble
+sort exhibit more haphazard memory access behaviour and this pushes up
+the average switching cost from that in quick sort and merge sort (as
+discussed in Appendix~\ref{AppendixC}).  A plausible reason for
+insertion sort incurring higher switching costs than bubble sort is
+the bubble sort algorithm spends most of its time in linearly
+traversing through the input array.  Insertion sort, in the average
+case, incurs more \textit{jumps} than bubble sort; bumping up this
+average hamming distance.  These jumps allow insertion sort to finish
+earlier than bubble-sort (and consume less \textit{total} energy, as
+seen in \reffig{fig:total-energy-sort-algo}).
 
 \subsection{Energy Characteristics of the Quick Sort Algorithm}
 
