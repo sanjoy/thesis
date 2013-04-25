@@ -1,28 +1,27 @@
 % Appendix A
 
-\chapter{Parameterizing \texttt{wattage}} % Main appendix title
+\chapter{Parameterizing \wattage} % Main appendix title
 
 \label{AppendixA}
 
-\lhead{Appendix A. Parameterizing \texttt{wattage}}
+\lhead{Appendix A. Parameterizing \wattage}
 
-\texttt{wattage} is parameterized on a number of values called
+\wattage is parameterized on a number of values called
 \textit{traits}.  These describe the processor's power usage
-characteristics and thus can be tweaked to retarget \texttt{wattage}
-to any reasonable microarchitecture.  The complete list of parameters
-can be obtained by invoking \texttt{wattage} with the command line
-argument \texttt{-print\_trait\_names}.
+characteristics and thus can be tweaked to retarget \wattage to any
+reasonable microarchitecture.  The complete list of traits can be
+obtained by invoking \wattage with the command line argument
+\texttt{-print\_trait\_names}.
 
 \begin{minted}[linenos, frame=lines]{bash}
   ./pin/pin -t wattage.so -print_trait_names -- ls
 \end{minted}
 
-\section{Classification of parameters}
-\label{sec:parameters-desc}
+\section{Classification of traits}
+\label{sec:traits-desc}
 
-The above command spits out forty-five traits.  Instead of describing
-them individually, a more systematic methodology would be to partition
-them into two separate forms:
+The meaning of each of the forty-five traits printed by the above
+command can be inferred using the nomenclature defined below:
 
 \subsection{Traits of the form \texttt{category\_*\_weight}}
 
@@ -54,14 +53,15 @@ an example.
   \begin{description*}
   \item[\texttt{imm\_operand}]\hfill \\ The immediate operands
     embedded in the current instruction.  So for \texttt{movq \$1024,
-      \%rax}, the value of this quantity is \texttt{42}.
+      \%rax}, the value of this quantity is \texttt{1024}.
     
-  \item[\texttt{reg}] \hfill \\ The code for any registers accessed in
-    the current instruction.  For \texttt{movq \$1024, \%rsi}, this
-    will be \texttt{6}, the encoding for \texttt{\%rsi}.
+  \item[\texttt{reg}] \hfill \\ The machine encoding for any registers
+    accessed in the current instruction.  For \texttt{movq \$1024,
+      \%rsi}, this will be \texttt{6}, the encoding for
+    \texttt{\%rsi}.
     
   \item[\texttt{reg\_value}] \hfill \\ The value of the register file.
-    Wattage interprets this as the cumulative value of all the general
+    \wattage interprets this as the cumulative value of all the general
     purpose registers.
 
   \item[\texttt{inst\_addr}] \hfill \\ The instruction address.
@@ -89,25 +89,27 @@ an example.
 
   \texttt{individual} tells us that this weight is multiplied with the
   \textit{number of ones} in the current value of quantity (so if the
-  value of the quantity is \texttt{42}, this weight will be multiplied
-  with \texttt{3}).  The alternative to this is \texttt{hamming} which
-  tells that the weight is multiplied with the number of bits
-  \textit{changed} from the last value of the quantity (so, for
-  instance, when the value changes from \texttt{42} to \text{50} the
-  weight is multiplied with \text{2}).
+  value of the quantity is \texttt{42}, \texttt{101010} in binary,
+  this weight will be multiplied with \texttt{3}).  The alternative to
+  this is \texttt{hamming} which tells that the weight is multiplied
+  with the number of bits \textit{changed} from the last value of the
+  quantity (so, for instance, when the value changes from \texttt{42}
+  to \texttt{50}, \texttt{110010} in binary, the weight is multiplied
+  with \text{2}).
 
 \item[\texttt{data\_value\_mem\_wt\_individual\_\hlight{write}}] \hfill
 
   This optional part of the trait name tells us that the weight will
-  be considered when the quantity is being \textit{written} to the
-  memory.  The alternative is \texttt{read} with the obvious meaning.
+  be considered when a value is being \textit{written} to memory.  The
+  alternative is \texttt{read}, denoting that the weight will be
+  considered when a value is being \textit{read} from memory.
   
 \end{description}
 
 \subsection{Other traits}
 
-Saving the traits mentioned above, \texttt{wattage} parameterizes on
-two other traits: \texttt{base\_mem\_value\_wt} and
+Apart from the traits mentioned above, \wattage parameterizes on two
+other traits: \texttt{base\_mem\_value\_wt} and
 \texttt{base\_mem\_word\_width\_wt}.  These are used to approximate
 the $BaseMem$ factor mentioned in \cite{steinke}.  $BaseMem$ is
 calculated as
@@ -121,12 +123,13 @@ calculated as
 where $ValueScale$ is \texttt{base\_mem\_value\_wt} and $WidthScale$
 is \texttt{base\_mem\_word\_width\_wt}.
 
-\section{Parameters for the x86} \label{sec:trait-values}
+\section{Trait values for the x86 architecture}
+\label{sec:trait-values}
 
-Parameters for the x86 ISA were derived from values mentioned in
+Trait values for the x86 ISA were derived from values mentioned in
 \cite{steinke} and \cite{lee}.  The inferences mentioned in this work
-should be largely resistant to reasonable modification to the CPU
-traits assumed.
+should be largely resistant to reasonable modification to these CPU
+traits.
 
 \begin{longtable}{l|l}
   \caption{Estimated CPU Traits for the x86 ISA} \\
