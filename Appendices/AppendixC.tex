@@ -5,23 +5,31 @@
 \lhead{Appendix C. \emph{Integer addition and bit flips}}
 
 The hamming distance between an integer and the integer incremented by
-some amount is an important factor since it determines the switching
-costs associated with a program accessing array elements.  Here we
-show that adding integers $A$ and $B$ incurs a $\frac{min(W_a,
-  W_b)}{2} + 1$ bit \textit{flips} on an average, where $W_x$ is the
-width of $x$ in bits.  As an example, adding $A = 01101b$ to $B =
-10001b$ \textit{flips} the most and the least significant bits of $A$,
-making the hamming distance between $A$ and $A + B$ equal to 2.
+some amount is an important factor in determining data-address bus
+switching costs associated with a program accessing array elements.
+Here we show that adding integers $A$ and $B$ with bit-widths $W_A$
+and $W_B$ respectively incurs $\frac{min(W_A, W_B)}{2} + 1$ bit
+\textit{flips} in the result on an average.  Formally
 
-Let $A$ and $B$ be two machine integers with $W_a$ the width of $A$ in
-bits and $W_b$ the width of $B$ in bits and let $N = min(W_a, W_b)$.
-Let $P_c(n)$ be the probability of an a carry bit from adding the bits
-at location $n$ (including a previous carry bit, if any).  Without
-loss of generality, we assume $W_A \geq W_b$.  Let $P_f(n)$ be the
-probability of the $n^{th}$ bit flipping in $A$ after the addition.
+\begin{equation}
+  E[\eta(A, A \uplus B) \mid A \in \{0, 1\}^{W_A}, B \in \{0,
+    1\}^{W_B} ] \approx \frac{min(W_A, W_B)}{2} + 1
+\end{equation}
 
-By considering all the eight possibilities, it can be seen that when
-$n < N$
+where $\eta : (\{0, 1\}^*, \{0, 1\}^*) \to \mathbb{Z}$ computes the
+hamming distance between its arguments and $\uplus : (\{0, 1\}^*, \{0,
+1\}^*) \to \{0, 1\}^*$ is binary addition.  As an example, with $A =
+(0, 1, 1, 0, 1)$ to $B = (1, 0, 0, 0, 1)$, $A \uplus B = (1, 1, 1, 0,
+1)$ and $\eta(A, A \uplus B) = 2$.
+
+Without loss of generality we assume $W_A \geq W_B$, making $min(W_A,
+W_B) = W_A = N$.  Let $P_c(n)$ denote the probability of a non-zero
+carry bit from adding the bits at location $n$ (including a previous
+carry bit, if any) and $P_f(n)$ denote the probability of the $n^{th}$
+bit flipping in $A$ after the addition.
+
+By considering all the eight possibilities, it can be seen that for $n
+< N$
 
 \begin{equation}
     P_f(n) = \frac{P_c(n - 1)}{2} + \frac{1 - P_c(n - 1)}{2} =
@@ -29,21 +37,25 @@ $n < N$
 \end{equation}
 
 To calculate $P_f(n)$ for $n \geq N$, we first calculate $P_c(n)$ for
-$n \geq N$.  Letting $C_i$ denote the $i^{th}$ carry bit, we observe
+$n \geq N$.  Letting $C_i$ denote the $i^{th}$ carry bit (such that
+$P_c(n) = Pr[C_n = 1]$), we observe
 
 \begin{equation}
-  P_c(N - 1) = Pr[C_{N - 1} = 1] = Pr[A\sembrack{N} + B\sembrack{N} >
-    2^N - 1]
+  P_c(N - 1) = Pr[C_{N - 1} = 1] = Pr[\nu(A\sembrack{N} \uplus
+    B\sembrack{N}) > 2^N - 1]
 \end{equation}
 
-where $X\sembrack{Y}$ is the integer we get considering only the
-lowest $Y$ bits of $X$.
+where $X\sembrack{Y}$ denotes the lower $Y$ bits of $X$ and $\nu :
+\{0, 1\}^* \to \mathbb{Z}$ maps a binary string to its canonical integral
+value, interpreted as an integer represented in base 2.
 
-Conditioning on $B\sembrack{N}$
+Conditioning on $B\sembrack{N}$ we get
 
 \begin{eqnarray*}
+  \label{eq:approximation-before-N}
   P_c(N) & = & \displaystyle\sum\limits_{k=0}^{2^{N} - 1}
-  Pr[A\sembrack{N} > 2^N - k \mid B\sembrack{N} = k] Pr[B\sembrack{N} = k] \\
+  Pr[\nu(A\sembrack{N}) > 2^N - k \mid \nu(B\sembrack{N}) = k]
+  Pr[\nu(B\sembrack{N}) = k] \\
   & = & \displaystyle\sum\limits_{k=0}^{2^{N} - 1} \frac{k}{(2^N - 1)^2} \\
   & \approx & \frac{1}{2}
 \end{eqnarray*}
@@ -59,35 +71,51 @@ inductively
     \\
     \frac{P_c(N + t - 1)}{2} & t > 0
   \end{cases} \\
-  & = & \frac{1}{2^t}
+  & = & \frac{1}{2^{t + 1}}
 \end{eqnarray*}
 
-Thus, the expected hamming distance between $A$ and $A + B$ is
+Thus, the expected hamming distance between $A$ and $A \uplus B$ is
 
 \begin{equation}
-  E[Hamming(A, A + B)] = \displaystyle\sum\limits_{k=0}^{N - 1} \frac{1}{2} + 
-  \displaystyle\sum\limits_{k=N}^{W_A} \frac{1}{2^{k - N}} + 
+  \label{eq:no-assumptions}
+  E[\eta(A, A \uplus B)] = \displaystyle\sum\limits_{k=0}^{N - 1} \frac{1}{2} + 
+  \displaystyle\sum\limits_{k=N}^{W_A} \frac{1}{2^{k + 1 - N}} + 
 \end{equation}
 
-When $W_A \gg W_b$, 
+When $W_A \gg W_b \equiv W_A \gg N$, 
 
 \begin{equation}
-  \displaystyle\sum\limits_{k=N}^{W_A} \frac{1}{2^{k - N}} = 
-  \displaystyle\sum\limits_{k=W_B}^{W_A} \frac{1}{2^{k - W_B}} \approx
-  \displaystyle\sum\limits_{k=0}^{\infty} \frac{1}{2^k} = 1
+  \displaystyle\sum\limits_{k=N}^{W_A} \frac{1}{2^{k + 1 - N}} \approx
+  \displaystyle\sum\limits_{k=0}^{\infty} \frac{1}{2^{k + 1}} = 1
 \end{equation}
 
 making
 
 \begin{equation}
-  E[Hamming(A, A + B)] \approx \frac{N}{2} + 1 = 
-  \frac{min(W_a, W_b)}{2} + 1
+  E[\eta(A, A \uplus B)] \approx \frac{N}{2} + 1 = 
+  \frac{min(W_A, W_B)}{2} + 1
 \end{equation}
 
 For an increment by 1, we have $W_B = 1$ and $W_A$ equal to the
-machine integer width.  Thus, we have
+machine integer width.  Thus
 
 \begin{equation}
   \label{proof:average-2-flips}
-  E[Hamming(A, A + 1)] \approx \frac{1}{2} + 1 = \frac{3}{2}
+  E[\eta(A, A \uplus (1))] \approx \frac{1}{2} + 1 = \frac{3}{2}
 \end{equation}
+
+Note that with $W_A = W_B$, $W_A \gg W_B$ is no longer valid (the
+approximation in equation~\ref{eq:approximation-before-N} is still
+valid) and equation~\ref{eq:no-assumptions} degenerates into
+
+\begin{equation}
+  E[\eta(A, A \uplus B)] = \displaystyle\sum\limits_{k=0}^{N - 1} \frac{1}{2} =
+  \frac{N}{2}
+\end{equation}
+
+This is expected -- when $W_A = W_B = N$, $E[\eta(A, A \uplus B)] =
+E[\eta(A, B)]$ since given $A$, $A \uplus B$ has the same distribution as
+$B$.  $\eta$ distributes over the individual bits (which are
+independently distributed) giving $E[\eta(A, B)] = N \times E[\eta(P,
+  Q), P, Q \in \{0, 1\}] = \frac{N}{2}$.
+ 
