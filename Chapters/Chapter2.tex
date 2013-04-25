@@ -119,7 +119,7 @@ the extremely low-level instrumentation \wattage does and ASLR
   http://en.wikipedia.org/wiki/Address\_space\_layout\_randomization}.
 
 Since the \texttt{.text} and stack pages are likely to be mapped to
-different virtual addresses each run, the instruction and emmory
+different virtual addresses each run, the instruction and memory
 addresses are non-deterministic in programs that are completely
 deterministic in the semantics of their source language.  This
 directly leads to non-determinism in our estimates.
@@ -147,7 +147,7 @@ sorting algorithms (the source code to which can be found in
 These sort algorithms were run on a pseudo-randomly generated (at
 compile-time) array of a thousand integers and the energy estimates
 were averaged over twenty runs.  The programs were compiled with GCC
-4.7.2 with at the \texttt{-O3} optimization level.
+4.7.2 with at \texttt{-O3} optimization level.
 
 \subsubsection{Results}
 
@@ -163,10 +163,11 @@ The estimated total energy consumption, as shown in figure
 \reffig{fig:total-energy-sort-algo}, is unsurprising in the sense that
 the two most CPU efficient algorithms, quick sort and merge sort are
 also the most energy efficient.  The additional energy requirement of
-merge sort can be attributed to the writes to the auxiliary array.
-Similarly the two least CPU efficient algorithms, bubble sort and
-insertion sort, are also the most energy inefficient.  The
-implementation of bubble sort used (see
+merge sort can be attributed to the writes to the auxiliary array and
+its additional runtime -- it is well known that quick sort performs
+better than merge sort in practice.  Similarly the two least CPU
+efficient algorithms, bubble sort and insertion sort, are also the
+most energy inefficient.  The implementation of bubble sort used (see
 \refsec{code:sorting-benchmark}) makes at least $\frac{n (n - 1)}{2}$
 reads on any input and this it is slower than insertion sort on
 average input -- explaining the additional energy consumed by bubble
@@ -217,9 +218,9 @@ Since the set of addresses accessed by each algorithm is the same, the
 differences between $\phi$ for different algorithms should be
 explainable with switching costs alone.  Partitioning in quick sort
 and merging in merge sort both exhibit linear memory access behavior,
-and consecutive addresses have a hamming distance of
+and consecutive addresses, on an average, have a hamming distance of
 $\frac{3}{2}$\footnote{For a proof, see
-  \refsec{proof:average-2-flips}.}.  Both insertion sort and bubble
+  \refsec{eq:average-flips}.}.  Both insertion sort and bubble
 sort exhibit more haphazard memory access behaviour and this pushes up
 the average switching cost from that in quick sort and merge sort (as
 discussed in Appendix~\ref{AppendixC}).  A plausible reason for
@@ -260,9 +261,11 @@ amenable to analysis than the total energy consumed.  That is the case
 here too.  We observe in figure
 \reffig{fig:qsort-energy-per-inst-per-array-length} that the average
 energy per instruction goes down as the array size increases.  This
-can be explained using equation \refsec{eq:solved} -- the quick sort
-algorithm spends more time accessing contiguous memory locations when
-sorting large arrays than when sorting small ones.
+can be explained using equation \refsec{eq:master-flip} -- the quick
+sort algorithm spends more time accessing contiguous memory locations
+(which incurs $\frac{3}{2}$ bit flips on the memory bus on each read /
+write access on an average) when sorting large arrays than when
+sorting small ones.
 
 \begin{figure}[hp]
   \centering

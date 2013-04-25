@@ -7,10 +7,12 @@
 \usepackage{stmaryrd}
 \usepackage{amssymb}
 \usepackage{amsmath}
+\usepackage{lipsum}% http://ctan.org/pkg/lipsum
+\usepackage{etoolbox}
 \everymath=\expandafter{\the\everymath\displaystyle}
 \hypersetup{urlcolor=black, colorlinks=false}
 \title{\ttitle}
-
+\AtBeginEnvironment{figure}{\addvspace{7mm}}\AtEndEnvironment{figure}{\addvspace{7mm}}
 \definecolor{highlight-color}{rgb}{0.75, 0.75, 0.75}
 
 \begin{document}

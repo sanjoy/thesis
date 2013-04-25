@@ -9,8 +9,11 @@ profile of software programs.  We saw in Chapter~\ref{Chapter2} that
 an algorithmic feature that influences the energy profile of a program
 is its data access patterns.  One can hope to reduce to see lower
 energy consumption by making memory access as sequential as possible;
-which gives us 2 bit flips in the memory address bus per fetch /
-write, very close to the optimal value of 1.
+which gives us $\frac{3}{2}$ bit flips in the memory address bus per
+fetch / write, close to the optimal value of 1.  Haphazard memory
+access, on the other hand, incurs more bit flips on the address bus;
+estimated as $\frac{N}{2} + 1$ where $N$ is the bit width of the array
+index or its equivalent (\refsec{eq:master-flip}).
 
 We saw a limited amount of success in modifying llvm's instruction
 scheduler to reduce the energy footprint of compiled binaries in

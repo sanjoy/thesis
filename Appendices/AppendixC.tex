@@ -12,6 +12,7 @@ and $W_B$ respectively incurs $\frac{min(W_A, W_B)}{2} + 1$ bit
 \textit{flips} in the result on an average.  Formally
 
 \begin{equation}
+  \label{eq:master-flip}
   E[\eta(A, A \uplus B) \mid A \in \{0, 1\}^{W_A}, B \in \{0,
     1\}^{W_B} ] \approx \frac{min(W_A, W_B)}{2} + 1
 \end{equation}
@@ -100,7 +101,7 @@ For an increment by 1, we have $W_B = 1$ and $W_A$ equal to the
 machine integer width.  Thus
 
 \begin{equation}
-  \label{proof:average-2-flips}
+  \label{eq:average-flips}
   E[\eta(A, A \uplus (1))] \approx \frac{1}{2} + 1 = \frac{3}{2}
 \end{equation}
 
