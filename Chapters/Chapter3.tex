@@ -54,7 +54,7 @@ times and profiled (for complete source code, please see
 \refsec{code:direct-mem} for \texttt{access\_memory\_b} and
 \refsec{code:grey-mem} for \texttt{access\_memory\_a}):
 
-\begin{center}
+\begin{table}[htbp]
   \begin{tabular}{ | c | c | }
     \hline
     \multicolumn{2}{|c|}{\texttt{access\_memory\_a}} \\
@@ -88,7 +88,7 @@ times and profiled (for complete source code, please see
     $E_{total}$ & 8.750314e+08 \\
     \hline
   \end{tabular}
-\end{center}
+\end{table}
 
 The results are understandable, in \texttt{access\_memory\_a} the
 addresses form a Gray code in their upper 61 bits and have a switching
@@ -96,7 +96,7 @@ cost of one bit flip per new memory read, while
 \texttt{access\_memory\_b} incurs an average of two bit flips in the
 bus per memory read.  This is clearly reflected in $E_{cpu\_data}$.
 
-\section{Better Instruction Selection}
+\section{Energy Aware Instruction Selection}
 
 Since the choice of instruction directly influences the
 base-instruction energy cost, it follows that an energy aware
@@ -176,8 +176,130 @@ shifting and rotating to consume a lesser (different, to be pedantic)
 amount of energy than multiplication; but the usual optimizations will
 already have transformed multiplies to shifts whenever possible.
 
-\section{Better Instruction Scheduling}
+\section{Energy Aware Instruction Scheduling}
 
-(Work in progress).
+LLVM's instruction scheduler assigns an ordering to the dependence DAG
+after it is annotated with concrete machine instructions by the
+instruction selector.  In other words, it chooses one of the many
+possible topological sorts of the dependence DAG with an aim to
+generate \textit{better} machine code, by some metric.  For instance,
+an instruction scheduler may use instruction itineraries (for the
+target micro-architecture) to schedule instructions attempting to
+minimize pipeline stalls.  In this section, we describe our attempt to
+have llvm's instruction scheduler schedule the dependence DAG to the
+effect of reducing inter-instruction energy costs.
 
-\subsection{LLVM's Instruction Scheduler}
+LLVM schedules instructions on two occasions -- before and after
+register allocation.  Before register allocation, it uses a register
+pressure reduction list scheduler\footnote{See
+  llvm/lib/CodeGen/SelectionDAG/ScheduleDAGRRList.cpp} and after
+register allocation, it optionally runs a priority-queue based
+scheduling pass\footnote{See
+  llvm/lib/CodeGen/PostRASchedulerList.cpp}.
+
+\subsection{Reducing Inter-Instruction Energy Cost}
+
+We postulated that the following kinds of inter-instruction energy
+costs are amenable to reduction by an energy-aware instruction
+scheduler.
+
+\begin{description}
+  \item[Data Address Switching Costs] \hfill \\ Data address switching
+    costs, quantified as \textit{data\_addr\_cpu\_wt\_hamming} and
+    \textit{data\-\_addr\_cpu\_wt\_hamming} in
+    \refsec{sec:parameters-desc} are the switching costs associated
+    with the changing address in the memory bus during reads and
+    writes.
+
+  \item[Instruction Value Switching Costs] \hfill \\ The actual value
+    of the instruction, in its native x86 encoding, contributes to
+    $E_{mem\_inst}$ (see \refsec{lst:fields-desc}).  This can be
+    reduced by taking into account the hamming distances of the
+    instructions to be scheduled in the post-register allocation
+    scheduler.  We get hold of the actual instruction encoding by
+    JIT-compiling the function in advance while keeping track of what
+    each scheduled node gets compiled to.
+\end{description}
+
+The implementation for both the above heuristics are similar: llvm
+uses a priority queue of available instructions to choose the next,
+most viable instruction.  We teach the priority queue to take into
+account the hamming distance between the instruction just emitted.
+The instruction \textit{just} emitted is either the instruction that
+will be executed right after the chosen in the basic block (when
+scheduling bottom-up) or the instruction executed just before the
+chosen instruction (when scheduling top-down).  The actual direction
+doesn't matter since hamming distance is symmetric.
+
+\subsection{Results}
+
+We made the above changes to llvm's instruction scheduler and profiled
+the code generated from our sorting benchmarks and some C++ compiler
+benchmarks from Adobe \cite{adobe-cpp}.
+
+While we did not see any significant change in the energy profiles of
+the sorting benchmarks (less than 0.01\%), we noticed some improvement
+in the energy profiles of the Adobe C++ benchmarks; show in
+\reftab{fig:improvements}.
+
+\begin{table}[htbp]
+  \begin{tabular}{l | l | l | l}
+    \textbf{Benchmark} & \textbf{Normal} &
+    \textbf{Energy Optimized} & \textbf{\%-age improvement} \\ \hline
+
+    loop-unroll & 330756521984.00 & 328669986816.00 & 0.63\% \\
+    stepanov-vector & 35246866432.00 & 35049050112.00 & 0.56\% \\
+    stepanov-abstraction & 22554845184.00 & 22546640896.00 & 0.03\%
+  \end{tabular}
+  \caption{Improvements in energy profile}
+  \label{fig:improvements}
+\end{table}
+
+We attribute this discrepancy to the fact that the Adobe C++ compiler
+benchmarks exposes more opportunities and freedom for reordering
+instructions than our simplistic sorting benchmarks.
+
+As expected, optimizing for energy efficiency affects the runtime of
+the program -- the scheduler is no longer free to maximize instruction
+level parallelism, for example.  We can see this in
+\reftab{fig:performance-cost}.
+
+\begin{table}[htbp]
+  \begin{tabular}{l | l | l | l}
+    \textbf{Benchmark} & \textbf{Normal} &
+    \textbf{Energy Optimized} & \textbf{\%-age decline} \\ \hline
+    
+    loop-unroll & 120937800 & 120257871 & -0.6 \% \\
+    stepanov-vector & 7574589 & 7585044 & 0.1 \% \\
+    stepanov-abstraction & 3894723 & 3927411 & 0.8 \%
+  \end{tabular}
+  \caption{Decline in the runtime performance of the compiled
+    executable in terms of CPU ticks (as reported by the
+    \texttt{rdtsc} instruction)}
+  \label{fig:performance-cost}
+\end{table}
+
+Interestingly, the modified scheduler for the \textit{loop-unroll}
+benchmark improves both the energy profile \textit{and} the tick
+count.
+
+\section{Future Work}
+
+\begin{description}
+
+\item[Code Placement] \hfill \\ Since there is a cost associated with
+  switching in the instruction address bus, we may be able to improve
+  the energy profile of generated code by optimizing the actual
+  locations in the \texttt{.text} section the machine code is
+  generated into.
+
+\item[Integration with the Operating System] \hfill \\ A lot of the
+  energy consumption is driven by factors within the control of the
+  underlying operating system.  For instance, an energy aware loader
+  should be able to drive down energy consumption by intelligently
+  mapping the executable sections to reduce costs due to the
+  instruction address bus.  Unfortunately, exploring an
+  energy-conscious operation system is well beyond the scope of this
+  work.
+
+\end{description}
