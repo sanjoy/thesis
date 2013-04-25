@@ -156,7 +156,7 @@
 \subject{}
 \keywords{compilers, optimization}
 \university{\texorpdfstring{\href{http://iitkgp.ac.in}
-    {Indian Institute of Technology, Kharagpur}}
+    {Indian Institute of Technology Kharagpur}}
   {Indian Institute of Technology, Kharagpur}}
 \UNIVERSITY{\texorpdfstring{\href{iitkgp.ac.in}
     {INDIAN INSTITUTE OF TECHNOLOGY, KHARAGPUR}}
