@@ -32,8 +32,8 @@ By considering all the eight possibilities, it can be seen that for $n
 < N$
 
 \begin{equation}
-    P_f(n) = \frac{P_c(n - 1)}{2} + \frac{1 - P_c(n - 1)}{2} =
-    \frac{1}{2}
+    P_f(n) = \overbrace{\frac{P_c(n - 1)}{2}}^{\text{With carry}} +
+    \underbrace{\frac{1 - P_c(n - 1)}{2}}_{\text{Without carry}} = \frac{1}{2}
 \end{equation}
 
 To calculate $P_f(n)$ for $n \geq N$, we first calculate $P_c(n)$ for
@@ -79,7 +79,7 @@ Thus, the expected hamming distance between $A$ and $A \uplus B$ is
 \begin{equation}
   \label{eq:no-assumptions}
   E[\eta(A, A \uplus B)] = \displaystyle\sum\limits_{k=0}^{N - 1} \frac{1}{2} + 
-  \displaystyle\sum\limits_{k=N}^{W_A} \frac{1}{2^{k + 1 - N}} + 
+  \displaystyle\sum\limits_{k=N}^{W_A} \frac{1}{2^{k + 1 - N}}
 \end{equation}
 
 When $W_A \gg W_b \equiv W_A \gg N$, 
@@ -104,9 +104,8 @@ machine integer width.  Thus
   E[\eta(A, A \uplus (1))] \approx \frac{1}{2} + 1 = \frac{3}{2}
 \end{equation}
 
-Note that with $W_A = W_B$, $W_A \gg W_B$ is no longer valid (the
-approximation in equation~\ref{eq:approximation-before-N} is still
-valid) and equation~\ref{eq:no-assumptions} degenerates into
+Note that with $W_A = W_B$, $W_A \gg W_B$ is no longer valid and
+equation~\ref{eq:no-assumptions} degenerates into
 
 \begin{equation}
   E[\eta(A, A \uplus B)] = \displaystyle\sum\limits_{k=0}^{N - 1} \frac{1}{2} =
