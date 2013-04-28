@@ -157,6 +157,36 @@ We now look at some specific cases
       E[\eta(A, A \uplus (1))] \approx 2
     \end{equation}
 
+    An alternate, less general proof of the same theorem can be given
+    as follows
+
+    \begin{adjustwidth}{2.5em}{0pt}
+
+    Let $F_k$ be the total number of bit flips encountered when
+    incrementing 0 to $2^k - 1$ in steps of 1.  For instance, $F_2$ is 4
+    since we encounter 1 bit flip going from 00 to 01, 2 when going from
+    01 to 10 and 1 more when going from 10 to 11.
+
+    Since going from 0 to $2^k - 1$ involves going from 0 to $2^{k - 1} -
+    1$ \textit{twice} in the lower $k - 1$ bits and doing one $k$ bit flip
+    when going from $2^{k - 1} - 1$ to $2^{k - 1}$
+
+
+    \begin{equation} \label{eq:recurrence}
+      F_k = 2 \times F_{k - 1} + k
+    \end{equation}
+
+    Solving the recurrence \ref{eq:recurrence} gives us
+
+    \begin{equation} \label{eq:solved}
+      F_k = 2^{k + 1} - (k + 2)
+    \end{equation}
+
+    The average number of bit flips when incrementing a $k$-bit integer is
+    therefore $\frac{F_k}{2^k} \approx 2$
+
+    \end{adjustwidth}
+
 \end{enumerate}
 
 Note that with $W_A = W_B$, $W_A \gg W_B$ is no longer valid and

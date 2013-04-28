@@ -210,13 +210,13 @@ scheduler.
   \item[Data Address Switching Costs] \hfill \\ Data address switching
     costs, quantified as \textit{data\_addr\_cpu\_wt\_hamming} and
     \textit{data\-\_addr\_cpu\_wt\_hamming} in
-    \refsec{sec:parameters-desc} are the switching costs associated
+    \refsec{sec:traits-desc} are the switching costs associated
     with the changing address in the memory bus during reads and
     writes.
 
   \item[Instruction Value Switching Costs] \hfill \\ The actual value
     of the instruction, in its native x86 encoding, contributes to
-    $E_{mem\_inst}$ (see \refsec{lst:fields-desc}).  This can be
+    $E_{mem\_inst}$ (see \refsec{sec:traits-desc}).  This can be
     reduced by taking into account the hamming distances of the
     instructions to be scheduled in the post-register allocation
     scheduler.  We get hold of the actual instruction encoding by
