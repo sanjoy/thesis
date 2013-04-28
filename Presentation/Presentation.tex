@@ -1,0 +1,240 @@
+\documentclass[xcolor=dvipsnames]{beamer}
+\usepackage{xspace}
+\usepackage[style=authortitle-ibid,babel=hyphen,backend=biber]{biblatex}
+\usepackage{minted}
+\usecolortheme[named=Brown]{structure}
+\usetheme[height=7mm]{Rochester}
+
+\bibliography{../References}
+
+\newcommand{\wattage}{\textsc{Wattage}\xspace}
+\newminted{c}{linenos, frame=lines, baselinestretch=1}
+\newminted{gas}{linenos, frame=lines, baselinestretch=1}
+
+\title[Energy Optimization]{Optimizing Programs for Energy Efficiency}
+%\subtitle[Errors]{}
+\author[Sanjoy Das]{Sanjoy \textsc{Das}}
+\institute[IITKGP]{
+  Department of Mathematics\\
+  Indian Institute of Technology Kharagpur\\
+  India\\[1ex]
+  \texttt{sanjoy@playingwithpointers.com}
+}
+\date[April 2013]{April 29, 2013}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Overview}
+  Energy consumption has become an important factor in system design.
+  We intend to partially address this issue at the software level.
+
+  \smallskip
+
+  Our objectives are
+
+  \begin{itemize}
+    \item to be able to robustly estimate the power consumption of a
+      program
+    \item to analyze the addressable factors that affect this estimate
+    \item to discuss techniques that improve this estimate
+  \end{itemize}
+\end{frame}
+
+%% --------------------------------------------------------------------------
+
+\begin{frame}{Energy Estimation via \wattage}
+  In the first phase of the project we
+
+  \begin{itemize}
+    \item developed
+      \wattage \footnote{https://github.com/sanjoy/wattage} -- a tool
+      for estimating energy consumption of binaries (based on the
+      model mentioned in \footcite{steinke}).
+    \item estimated and analyzed the energy profiles of some common
+      sorting algorithms implemented in C++.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Some Experimental Results : Sorting Algorithms}
+  \includegraphics[width=1.0\textwidth]{../Figures/energy-vs-sort-algorithm.eps} 
+\end{frame}
+
+\begin{frame}{Some Experimental Results : Sorting Algorithms}
+  \includegraphics[width=1.0\textwidth]
+                  {../Figures/energy-per-inst-vs-sort-algorithm.eps}
+\end{frame}
+
+\begin{frame}{Some Experimental Results : Sorting Algorithms}
+  \begin{figure}
+    \centering
+    \includegraphics[height=0.6\textheight]
+                    {../Figures/energy-per-inst-nomem-vs-sort-algorithm.eps}
+  \end{figure}
+
+  \begin{equation}
+    \phi = 1 - \frac{\text{Energy estimate without data address
+        costs}}{\text{Total energy estimate}}
+  \end{equation}
+\end{frame}
+
+\begin{frame}{Some Experimental Results : Quick Sort}
+  \includegraphics[width=1.0\textwidth]{../Figures/qsort-energy-total.eps}
+\end{frame}
+
+\begin{frame}{Some Experimental Results : Quick Sort}
+  \includegraphics[width=1.0\textwidth]{../Figures/qsort-energy-per-inst.eps}
+\end{frame}
+
+%% --------------------------------------------------------------------------
+
+\begin{frame}{Optimizing Energy Profiles via llvm\footnote{http://llvm.org}}
+  In the second phase of the project, we explored the possible
+  compiler optimizations that may help improve the energy profiles of
+  programs.
+\end{frame}
+
+\begin{frame}{Better Instruction Selection}
+  \begin{itemize}
+    \item Instruction selection has potential reduce
+      \textit{per-instruction} energy costs.
+    \item We changed llvm's code-generator-generator to respect
+      instruction base costs.  \pause
+    \item This approach did not work -- llvm generates the same
+      assembly for the benchmarks before and after the augmentation.
+    \item Two sequences of instructions semantically equivalent to
+      each other but sufficiently different to have different energy
+      profiles are rare.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Better Instruction Scheduling}
+  Consider the C function
+
+  \begin{ccode}
+    long access_memory(long *buf) {
+      return buf[0] + buf[1] + buf[2] + buf[3] +
+             buf[4] + buf[5] + buf[6] + buf[7];
+    }
+  \end{ccode}
+\end{frame}
+
+\begin{frame}[fragile]{Better Instruction Scheduling}
+  Example assembly (hand-written, direct)
+
+  \begin{gascode}
+    access_memory:
+      movq    (%rdi),   %rax
+      addq    8(%rdi),  %rax
+      addq    16(%rdi), %rax
+      addq    24(%rdi), %rax
+      addq    32(%rdi), %rax
+      addq    40(%rdi), %rax
+      addq    48(%rdi), %rax
+      addq    56(%rdi), %rax
+      ret
+  \end{gascode}
+\end{frame}
+
+\begin{frame}[fragile]{Better Instruction Scheduling}
+  Example assembly (hand-written, energy-optimized)
+
+  \begin{gascode}
+    access_memory:
+      movq    (%rdi),   %rax
+      addq    8(%rdi),  %rax
+      addq    24(%rdi), %rax
+      addq    16(%rdi), %rax
+      addq    48(%rdi), %rax
+      addq    56(%rdi), %rax
+      addq    40(%rdi), %rax
+      addq    32(%rdi), %rax
+      ret
+  \end{gascode}
+\end{frame}
+
+\begin{frame}{Better Instruction Scheduling}
+  It \textit{is possible} to reduce energy costs associated with
+  switching by intelligent scheduling.
+
+  \smallskip
+
+  We modified llvm's instruction scheduler to schedule
+
+  \begin{itemize}
+    \item similar instructions (same opcode) together
+    \item memory access instructions trying to minimize switching
+      costs in the memory address bus
+    \item instructions with similar encodings together
+  \end{itemize}
+
+  whenever possible, given dependency constraints.
+\end{frame}
+
+\begin{frame}{Results: mildly successful}
+  We saw
+
+  \begin{itemize}
+    \item no change in the energy profiles of the sorting algorithms.
+    \item a small but consistent improvement in the energy profiles of
+      some C++ compiler benchmarks from
+      Adobe\footnote{http://stlab.adobe.com/performance/}
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Results: mildly successful}
+  \begin{figure}
+    \centering
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{| c | c | }
+      \hline
+      \textbf{Benchmark} & \textbf{\%-age improvement} \\
+      \hline
+
+      loop-unroll & 0.63\% \\
+      stepanov-vector & 0.56\% \\
+      stepanov-abstraction & 0.03\% \\
+      \hline
+    \end{tabular}
+    \caption{Improvements in energy profile}
+    \label{fig:improvements}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Results: mildly successful}
+  \begin{figure}[htbp]
+    \centering
+    \renewcommand{\arraystretch}{1.5}
+
+    \begin{tabular}{| c | c |}
+      \hline
+      \textbf{Benchmark} & \textbf{\%-age decline} \\ \hline
+
+      loop-unroll & -0.6 \% \\
+      stepanov-vector & 0.1 \% \\
+      stepanov-abstraction & 0.8 \% \\
+      \hline
+    \end{tabular}
+    \caption{Decline in the runtime performance of the compiled
+      executable in terms of CPU ticks (as reported by the
+      \texttt{rdtsc} instruction)}
+    \label{fig:performance-cost}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Thank You}
+  \begin{center}
+    Thank You!\\
+    Questions please
+  \end{center}
+\end{frame}
+
+\begin{frame}{Bibliography}
+  \printbibliography
+\end{frame}
+
+\end{document}
